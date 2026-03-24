@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #3d3d3d;
+    color: #ffffff;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Oswald', sans-serif;
+  }
+
+  body, p, span, input, select, textarea, button {
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-brand-orange text-white font-heading font-semibold uppercase tracking-wide px-8 py-4 rounded hover:bg-orange-600 transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply border border-white text-white font-heading font-semibold uppercase tracking-wide px-8 py-4 rounded hover:bg-white hover:text-brand-bg transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-brand-dark rounded-lg p-6 border border-white/10;
+  }
+
+  .section-label {
+    @apply text-brand-orange font-heading font-semibold uppercase tracking-widest text-sm;
+  }
+}

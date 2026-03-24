@@ -1,0 +1,58 @@
+import './globals.css';
+
+export const metadata = {
+  title: 'AI Visibility Assessment | Abstrakt Marketing Group',
+  description:
+    'Find out if your business is invisible to AI. Get a free AI Visibility Assessment — covering your website health, local presence, and how AI tools like ChatGPT and Perplexity see your brand.',
+  openGraph: {
+    title: 'AI Visibility Assessment | Abstrakt Marketing Group',
+    description: 'Is your business invisible to AI? Find out in minutes.',
+    url: 'https://audit.abstraktmg.com',
+    siteName: 'Abstrakt Marketing Group',
+  },
+};
+
+export default function RootLayout({ children }) {
+  const chilipiperSubdomain = process.env.NEXT_PUBLIC_CHILIPIPER_SUBDOMAIN;
+
+  return (
+    <html lang="en">
+      <head>
+        {/* Google Fonts — Oswald (headings) + Inter (body) */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+
+        {/* Chilipiper — booking modal script */}
+        {chilipiperSubdomain && (
+          <script
+            src={`https://js.chilipiper.com/marketing.js`}
+            type="text/javascript"
+            async
+          />
+        )}
+
+        {/* Google Tag Manager — TODO: replace GTM-XXXXXXX with real container ID */}
+        {/* <script dangerouslySetInnerHTML={{ __html: `
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-XXXXXXX');
+        `}} /> */}
+      </head>
+      <body className="bg-brand-bg text-white font-body antialiased">
+        {/* GTM noscript fallback — TODO: enable when GTM ID is ready */}
+        {/* <noscript>
+          <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+            height="0" width="0" style={{ display: 'none', visibility: 'hidden' }} />
+        </noscript> */}
+
+        {children}
+      </body>
+    </html>
+  );
+}
