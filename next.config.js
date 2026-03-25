@@ -1,4 +1,4 @@
-jsconst nextConfig = {
+const nextConfig = {
   reactStrictMode: true,
   experimental: {
     serverComponentsExternalPackages: ['pdfkit'],
