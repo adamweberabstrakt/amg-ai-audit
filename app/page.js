@@ -178,7 +178,7 @@ function PainPoints() {
           {pains.map((pain) => (
             <div
               key={pain.headline}
-              className="group relative bg-[#222] rounded-xl p-8 border border-white/8 hover:border-brand-orange/40 transition-all duration-300 overflow-hidden"
+              className="group relative bg-[#222] rounded-xl p-8 border border-white/10 hover:border-brand-orange/40 transition-all duration-300 overflow-hidden"
             >
               {/* Hover glow */}
               <div className="absolute inset-0 bg-brand-orange/0 group-hover:bg-brand-orange/[0.03] transition-colors duration-300 pointer-events-none rounded-xl" />
@@ -316,7 +316,7 @@ function WhatYouGet() {
           {items.map((item) => (
             <div
               key={item.title}
-              className="group relative bg-[#1e1e1e] rounded-xl border border-white/8 hover:border-brand-orange/50 transition-all duration-300 overflow-hidden flex flex-col"
+              className="group relative bg-[#1e1e1e] rounded-xl border border-white/10 hover:border-brand-orange/50 transition-all duration-300 overflow-hidden flex flex-col"
             >
               {/* Top accent bar */}
               <div className="h-[3px] w-full bg-gradient-to-r from-brand-orange/0 via-brand-orange to-brand-orange/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -335,7 +335,7 @@ function WhatYouGet() {
                     </li>
                   ))}
                 </ul>
-                <div className="pt-4 border-t border-white/8 mt-2">
+                <div className="pt-4 border-t border-white/10 mt-2">
                   <p className="text-xs text-gray-600 italic leading-relaxed">{item.why}</p>
                 </div>
               </div>
@@ -426,7 +426,7 @@ function FinalCTA() {
 // ─── Footer ───────────────────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer className="px-6 py-8 border-t border-white/8 text-center bg-[#111]">
+    <footer className="px-6 py-8 border-t border-white/10 text-center bg-[#111]">
       <p className="text-gray-600 text-sm">
         © {new Date().getFullYear()} Abstrakt Marketing Group. All rights reserved.
       </p>
