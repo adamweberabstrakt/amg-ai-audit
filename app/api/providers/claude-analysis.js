@@ -5,8 +5,6 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 
-const client = new Anthropic();
-
 export async function runClaudeAnalysis({
   company,
   website,
@@ -20,6 +18,8 @@ export async function runClaudeAnalysis({
   crawlData,
   placesData,
 }) {
+  const client = new Anthropic();
+
   const prompt = buildPrompt({
     company, website, industry, goal, budgetRange, brandRating,
     competitor1, competitor2, pageSpeedScore, crawlData, placesData,
