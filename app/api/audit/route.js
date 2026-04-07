@@ -8,6 +8,9 @@ import { runCrawl }         from '../providers/crawl';
 import { runPlaces }        from '../providers/places';
 import { runClaudeAnalysis } from '../providers/claude-analysis';
 
+// Extend Vercel function timeout to 60s (default is 10s — not enough for parallel API calls)
+export const maxDuration = 60;
+
 export async function POST(req) {
   try {
     const body = await req.json();
@@ -31,20 +34,26 @@ export async function POST(req) {
     const crawl = crawlData.status   === 'fulfilled'   ? crawlData.value      : null;
     const places = placesData.status === 'fulfilled'   ? placesData.value     : null;
 
-    // ── Run Claude analysis (single call, returns all AI-powered fields) ────
-    const claudeData = await runClaudeAnalysis({
-      company,
-      website: url,
-      industry,
-      goal,
-      budgetRange,
-      brandRating,
-      competitor1,
-      competitor2,
-      pageSpeedScore: ps?.score ?? null,
-      crawlData:      crawl,
-      placesData:     places,
-    });
+    // ── Run Claude analysis — wrapped so a failure returns fallback, not 500 ─
+    let claudeData;
+    try {
+      claudeData = await runClaudeAnalysis({
+        company,
+        website: url,
+        industry,
+        goal,
+        budgetRange,
+        brandRating,
+        competitor1,
+        competitor2,
+        pageSpeedScore: ps?.score ?? null,
+        crawlData:      crawl,
+        placesData:     places,
+      });
+    } catch (claudeErr) {
+      console.error('[audit/route] Claude analysis failed, using fallback:', claudeErr);
+      claudeData = null;
+    }
 
     return NextResponse.json({
       pageSpeed: ps,
