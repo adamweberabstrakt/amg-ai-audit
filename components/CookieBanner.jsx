@@ -3,70 +3,46 @@
 import { useEffect, useState } from 'react';
 
 // GDPR/CCPA cookie consent banner.
-// On Accept: grants GTM consent + fires Meta Pixel + LinkedIn Insight Tag.
-// On Decline: only allows analytics (no ad storage).
-// Consent stored in localStorage under 'cookie_consent'.
+// GTM is already loaded in layout.js with consent defaulted to 'denied'.
+// On Accept: fires a GTM consent_update event → GTM handles firing all tags
+// (Meta Pixel, LinkedIn, Google Ads, GA4) based on your GTM consent configuration.
+// No pixel IDs needed here — GTM manages everything.
 
-export default function CookieBanner({ metaPixelId, liPartnerId }) {
-  const [visible, setVisible] = useState(false);
+export default function CookieBanner() {
+  const [visible,    setVisible]    = useState(false);
   const [showManage, setShowManage] = useState(false);
-  const [prefs, setPrefs] = useState({ analytics: true, marketing: true });
+  const [prefs,      setPrefs]      = useState({ analytics: true, marketing: true });
 
   useEffect(() => {
     const saved = localStorage.getItem('cookie_consent');
     if (!saved) {
-      // Slight delay so banner doesn't flash immediately
       const t = setTimeout(() => setVisible(true), 1200);
       return () => clearTimeout(t);
     }
-    // Re-apply saved consent on every page load
     try { applyConsent(JSON.parse(saved)); } catch {}
   }, []);
 
   function applyConsent(consent) {
-    if (typeof window === 'undefined') return;
-
-    // GTM Consent Mode update
-    if (window.dataLayer) {
-      window.dataLayer.push({
-        event: 'consent_update',
-        ad_storage:          consent.marketing ? 'granted' : 'denied',
-        analytics_storage:   consent.analytics ? 'granted' : 'denied',
-        ad_user_data:        consent.marketing ? 'granted' : 'denied',
-        ad_personalization:  consent.marketing ? 'granted' : 'denied',
-      });
-    }
-
-    // Meta Pixel — only init if marketing consented
-    if (consent.marketing && metaPixelId && !window._fbqInit) {
-      window._fbqInit = true;
-      /* eslint-disable */
-      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-      (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-      /* eslint-enable */
-      window.fbq('init', metaPixelId);
-      window.fbq('track', 'PageView');
-    }
-
-    // LinkedIn Insight Tag — only init if marketing consented
-    if (consent.marketing && liPartnerId && !window._liInit) {
-      window._liInit = true;
-      window._linkedin_partner_id = liPartnerId;
-      window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
-      window._linkedin_data_partner_ids.push(liPartnerId);
-      const s = document.createElement('script');
-      s.type = 'text/javascript';
-      s.async = true;
-      s.src = 'https://snap.licdn.com/li.lms-analytics/insight.min.js';
-      document.head.appendChild(s);
-    }
+    if (typeof window === 'undefined' || !window.dataLayer) return;
+    // This single event is all GTM needs — it will fire/suppress tags accordingly
+    window.dataLayer.push({
+      event:               'consent_update',
+      ad_storage:          consent.marketing ? 'granted' : 'denied',
+      analytics_storage:   consent.analytics ? 'granted' : 'denied',
+      ad_user_data:        consent.marketing ? 'granted' : 'denied',
+      ad_personalization:  consent.marketing ? 'granted' : 'denied',
+    });
   }
 
   function accept() {
     const consent = { analytics: true, marketing: true };
+    localStorage.setItem('cookie_consent', JSON.stringify(consent));
+    applyConsent(consent);
+    setVisible(false);
+  }
+
+  function decline() {
+    const consent = { analytics: true, marketing: false };
     localStorage.setItem('cookie_consent', JSON.stringify(consent));
     applyConsent(consent);
     setVisible(false);
@@ -77,13 +53,6 @@ export default function CookieBanner({ metaPixelId, liPartnerId }) {
     applyConsent(prefs);
     setVisible(false);
     setShowManage(false);
-  }
-
-  function decline() {
-    const consent = { analytics: true, marketing: false };
-    localStorage.setItem('cookie_consent', JSON.stringify(consent));
-    applyConsent(consent);
-    setVisible(false);
   }
 
   if (!visible) return null;
@@ -111,7 +80,6 @@ export default function CookieBanner({ metaPixelId, liPartnerId }) {
           <>
             <p className="text-xs text-gray-400 uppercase tracking-widest mb-3 font-heading">Manage Cookie Preferences</p>
             <div className="space-y-3 mb-5">
-              {/* Necessary — always on */}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-white">Necessary</p>
@@ -119,7 +87,6 @@ export default function CookieBanner({ metaPixelId, liPartnerId }) {
                 </div>
                 <span className="text-xs text-gray-500 font-medium">Always On</span>
               </div>
-              {/* Analytics */}
               <div className="flex items-center justify-between border-t border-white/10 pt-3">
                 <div>
                   <p className="text-sm font-medium text-white">Analytics</p>
@@ -127,17 +94,16 @@ export default function CookieBanner({ metaPixelId, liPartnerId }) {
                 </div>
                 <ToggleSwitch on={prefs.analytics} onChange={(v) => setPrefs(p => ({ ...p, analytics: v }))} />
               </div>
-              {/* Marketing */}
               <div className="flex items-center justify-between border-t border-white/10 pt-3">
                 <div>
                   <p className="text-sm font-medium text-white">Marketing & Retargeting</p>
-                  <p className="text-xs text-gray-500">Google Ads, Meta Pixel, LinkedIn Insight Tag.</p>
+                  <p className="text-xs text-gray-500">Google Ads, Meta Pixel, LinkedIn — managed via GTM.</p>
                 </div>
                 <ToggleSwitch on={prefs.marketing} onChange={(v) => setPrefs(p => ({ ...p, marketing: v }))} />
               </div>
             </div>
             <div className="flex gap-3">
-              <button onClick={savePrefs}        className="btn-primary text-sm px-6 py-2.5">Save Preferences</button>
+              <button onClick={savePrefs} className="btn-primary text-sm px-6 py-2.5">Save Preferences</button>
               <button onClick={() => setShowManage(false)} className="text-sm text-gray-400 hover:text-white transition-colors">← Back</button>
             </div>
           </>
