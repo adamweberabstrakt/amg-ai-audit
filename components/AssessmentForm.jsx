@@ -65,7 +65,8 @@ export default function AssessmentForm() {
     hasSocialMedia: '',
     competitor1:    '',
     competitor2:    '',
-    aiToolsUsed:    [],
+    aiToolsUsed:        [],
+    requestReviewCall:  true,  // opt-in by default
   });
 
   // Capture UTM params on mount
@@ -164,10 +165,22 @@ export default function AssessmentForm() {
 
       if (!res.ok) throw new Error(auditData.error || 'Audit failed');
 
-      // 3. Store results + lead data, navigate to results
-      sessionStorage.setItem('auditResults', JSON.stringify(auditData));
-      sessionStorage.setItem('leadData', JSON.stringify(payload));
-      router.push('/results');
+      // 3. Generate share URL and navigate to /results?id=UUID
+      let resultPath = '/results';
+      try {
+        const shareRes = await fetch('/api/share', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ auditData, leadData: payload }),
+        });
+        const { id } = await shareRes.json();
+        if (id) resultPath = `/results?id=${id}`;
+      } catch {
+        // If share fails, fall back to sessionStorage route
+        sessionStorage.setItem('auditResults', JSON.stringify(auditData));
+        sessionStorage.setItem('leadData',     JSON.stringify(payload));
+      }
+      router.push(resultPath);
     } catch (err) {
       console.error('Audit error:', err);
       setIsLoading(false);
@@ -368,6 +381,26 @@ function Step3({ formData, update, toggleAITool }) {
           ))}
         </div>
       </Field>
+
+      {/* ── Opt-in: request review call — checked by default ── */}
+      <div className="mt-6 p-4 rounded-xl border border-brand-orange/30 bg-brand-orange/5">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={formData.requestReviewCall}
+            onChange={(e) => update('requestReviewCall', e.target.checked)}
+            className="mt-1 w-4 h-4 accent-brand-orange flex-shrink-0 cursor-pointer"
+          />
+          <div>
+            <p className="text-sm font-medium text-white">
+              Yes, I'd like an Abstrakt team member to walk through my results with me.
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              We'll reach out within 1 business day to schedule a free 20-minute review call.
+            </p>
+          </div>
+        </label>
+      </div>
     </div>
   );
 }
