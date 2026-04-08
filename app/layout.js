@@ -14,9 +14,7 @@ export const metadata = {
   },
 };
 
-const GTM_ID   = process.env.NEXT_PUBLIC_GTM_ID;   // e.g. GTM-XXXXXXX
-const META_ID  = process.env.NEXT_PUBLIC_META_PIXEL_ID;
-const LI_ID    = process.env.NEXT_PUBLIC_LI_PARTNER_ID;
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID; // e.g. GTM-XXXXXXX
 
 export default function RootLayout({ children }) {
   return (
@@ -59,19 +57,6 @@ export default function RootLayout({ children }) {
           `}} />
         )}
 
-        {/* ── Meta Pixel (consent-gated — fires only after CookieBanner accept) ── */}
-        {META_ID && (
-          <script dangerouslySetInnerHTML={{ __html: `
-            window._metaPixelId = '${META_ID}';
-          `}} />
-        )}
-
-        {/* ── LinkedIn Insight Tag (consent-gated) ── */}
-        {LI_ID && (
-          <script dangerouslySetInnerHTML={{ __html: `
-            window._liPartnerId = '${LI_ID}';
-          `}} />
-        )}
       </head>
 
       <body className="bg-brand-bg text-white font-body antialiased">
@@ -97,7 +82,7 @@ export default function RootLayout({ children }) {
         />
 
         {/* ── Cookie consent banner ── */}
-        <CookieBanner metaPixelId={META_ID} liPartnerId={LI_ID} />
+        <CookieBanner />
       </body>
     </html>
   );
