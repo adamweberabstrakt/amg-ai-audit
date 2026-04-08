@@ -23,7 +23,8 @@ export async function POST(req) {
   try {
     const body = await req.json();
     pruneOld();
-    const id = randomUUID();
+    // Accept a pre-generated id from the client (so webhook URL matches stored results)
+    const id = body.id ?? randomUUID();
     store.set(id, { data: body, savedAt: Date.now() });
     return NextResponse.json({ id });
   } catch (err) {
