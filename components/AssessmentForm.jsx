@@ -144,15 +144,18 @@ export default function AssessmentForm() {
   async function handleSubmit() {
     setIsLoading(true);
 
-    const payload = { ...formData, ...utmParams };
+    // Generate UUID now so the results URL is known before the webhook fires
+    const shareId    = crypto.randomUUID();
+    const resultsUrl = `${window.location.origin}/results?id=${shareId}`;
+    const payload    = { ...formData, ...utmParams, resultsUrl };
 
     try {
-      // 1. Fire Zapier webhook (lead capture) — don't await, don't block
+      // 1. Fire Zapier webhook (lead capture) — includes resultsUrl
       fetch('/api/webhook', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-      }).catch(() => {}); // silent fail — lead data isn't worth blocking the UX
+      }).catch(() => {}); // silent fail
 
       // 2. Run the audit (parallel: PageSpeed + Places + Crawl + Claude)
       const res = await fetch('/api/audit', {
@@ -165,22 +168,19 @@ export default function AssessmentForm() {
 
       if (!res.ok) throw new Error(auditData.error || 'Audit failed');
 
-      // 3. Generate share URL and navigate to /results?id=UUID
-      let resultPath = '/results';
+      // 3. Save results using the pre-generated UUID so the URL is predictable
       try {
-        const shareRes = await fetch('/api/share', {
+        await fetch('/api/share', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ auditData, leadData: payload }),
+          body:    JSON.stringify({ id: shareId, auditData, leadData: payload }),
         });
-        const { id } = await shareRes.json();
-        if (id) resultPath = `/results?id=${id}`;
       } catch {
-        // If share fails, fall back to sessionStorage route
+        // Fallback to sessionStorage if share API fails
         sessionStorage.setItem('auditResults', JSON.stringify(auditData));
         sessionStorage.setItem('leadData',     JSON.stringify(payload));
       }
-      router.push(resultPath);
+      router.push(`/results?id=${shareId}`);
     } catch (err) {
       console.error('Audit error:', err);
       setIsLoading(false);
