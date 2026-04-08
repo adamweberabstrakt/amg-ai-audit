@@ -22,10 +22,10 @@ function Header() {
   return (
     <header className="border-b border-white/10 px-6 py-4 sticky top-0 z-50 bg-[#1a1a1a]/95 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
-        <div className="font-heading font-bold text-lg tracking-wide">
-          <span className="text-brand-orange">ABSTRAKT</span>
-          <span className="text-white"> MARKETING GROUP</span>
-        </div>
+        <a href="/" className="flex items-center">
+          <img src="/logo-orange.png" alt="Abstrakt Marketing Group" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} className="dark-logo" />
+          <img src="/logo-dark.png"   alt="Abstrakt Marketing Group" style={{ height: '36px', width: 'auto', objectFit: 'contain', display: 'none' }} className="light-logo" />
+        </a>
         <Link href="/assess" className="btn-primary text-sm px-5 py-2.5">
           Get Free Assessment →
         </Link>
