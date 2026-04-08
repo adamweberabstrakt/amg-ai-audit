@@ -2,20 +2,31 @@
 
 import { useEffect } from 'react';
 
-// Tab 1: AI Visibility Score
-// Displays the Claude-generated score, breakdown, and visibility summary.
-// Fires a ChiliPiper booking popup 15 seconds after mounting.
+function waitForChiliPiper(timeout = 3000) {
+  return new Promise((resolve) => {
+    if (window.ChiliPiper) { resolve(true); return; }
+    const interval = 150;
+    let elapsed = 0;
+    const timer = setInterval(() => {
+      elapsed += interval;
+      if (window.ChiliPiper) { clearInterval(timer); resolve(true); return; }
+      if (elapsed >= timeout)  { clearInterval(timer); resolve(false); }
+    }, interval);
+  });
+}
 
 export default function AIVisibilityTab({ auditData }) {
   const claude    = auditData?.claude    ?? {};
   const breakdown = claude.scoreBreakdown ?? {};
 
-  // 15-second ChiliPiper popup — clears on unmount if user switches tabs
+  // Fire ChiliPiper popup 15s after landing on this tab
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       const subdomain = process.env.NEXT_PUBLIC_CHILIPIPER_SUBDOMAIN;
       const router    = process.env.NEXT_PUBLIC_CHILIPIPER_ROUTER;
-      if (typeof window !== 'undefined' && window.ChiliPiper && subdomain && router) {
+      if (!subdomain || !router) return;
+      const loaded = await waitForChiliPiper();
+      if (loaded) {
         window.ChiliPiper.submit(subdomain, router, {
           lead:    {},
           onClose: () => {},
@@ -35,7 +46,6 @@ export default function AIVisibilityTab({ auditData }) {
 
   return (
     <div className="space-y-8">
-      {/* Why This Matters */}
       <div className="card border-l-4 border-brand-orange">
         <p className="section-label mb-2">Why This Matters</p>
         <p className="text-gray-300 text-sm leading-relaxed">
@@ -45,7 +55,6 @@ export default function AIVisibilityTab({ auditData }) {
         </p>
       </div>
 
-      {/* Score breakdown */}
       <div>
         <h3 className="font-heading text-xl font-semibold mb-5">Score Breakdown</h3>
         <div className="grid sm:grid-cols-2 gap-4">
@@ -58,10 +67,8 @@ export default function AIVisibilityTab({ auditData }) {
                   <span className={`font-heading text-xl font-bold ${scoreColor(val)}`}>{val}</span>
                 </div>
                 <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-3">
-                  <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${val}%`, backgroundColor: scoreHex(val) }}
-                  />
+                  <div className="h-full rounded-full transition-all duration-700"
+                    style={{ width: `${val}%`, backgroundColor: scoreHex(val) }} />
                 </div>
                 <p className="text-xs text-gray-500">{item.tip}</p>
               </div>
@@ -70,7 +77,6 @@ export default function AIVisibilityTab({ auditData }) {
         </div>
       </div>
 
-      {/* Recommendations */}
       {claude.topRecommendations?.length > 0 && (
         <div>
           <h3 className="font-heading text-xl font-semibold mb-4">Top Recommendations</h3>
@@ -93,7 +99,6 @@ function scoreColor(val) {
   if (val >= 40) return 'text-yellow-400';
   return 'text-red-400';
 }
-
 function scoreHex(val) {
   if (val >= 70) return '#22c55e';
   if (val >= 40) return '#f59e0b';
