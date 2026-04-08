@@ -5,15 +5,15 @@ export async function runPageSpeed(url) {
   const apiKey = process.env.GOOGLE_API_KEY;
   const endpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed`;
 
-  const params = new URLSearchParams({
-    url,
-    key:      apiKey,
-    strategy: 'mobile', // mobile-first
-    category: 'performance',
-    category: 'accessibility',
-    category: 'best-practices',
-    category: 'seo',
-  });
+  // URLSearchParams object required — plain object drops duplicate keys
+  const params = new URLSearchParams();
+  params.append('url',      url);
+  params.append('key',      apiKey);
+  params.append('strategy', 'mobile');
+  params.append('category', 'performance');
+  params.append('category', 'accessibility');
+  params.append('category', 'best-practices');
+  params.append('category', 'seo');
 
   const res = await fetch(`${endpoint}?${params}`);
   if (!res.ok) throw new Error(`PageSpeed API error: ${res.status}`);
