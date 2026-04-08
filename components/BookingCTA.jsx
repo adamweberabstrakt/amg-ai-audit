@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 
-// Sticky bottom CTA on the results page.
-// Fires ChiliPiper.submit() with pre-filled lead data + UTM attribution.
-// On booking success, redirects to /thank-you.
+// Booking CTA:
+// - Desktop: floating pill pinned bottom-right
+// - Mobile: slim sticky footer bar
 
 export default function BookingCTA({ score, leadData }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,77 +15,76 @@ export default function BookingCTA({ score, leadData }) {
     const subdomain = process.env.NEXT_PUBLIC_CHILIPIPER_SUBDOMAIN;
     const router    = process.env.NEXT_PUBLIC_CHILIPIPER_ROUTER;
 
-    // ChiliPiper global is injected via the <script> tag in layout.js
     if (typeof window === 'undefined' || !window.ChiliPiper) {
-      console.warn('ChiliPiper not loaded — check layout.js script tag');
-      setIsLoading(false);
-      // Fallback: open Chilipiper URL directly
       window.open(`https://${subdomain}.chilipiper.com/book/${router}`, '_blank');
+      setIsLoading(false);
       return;
     }
 
     window.ChiliPiper.submit(subdomain, router, {
       lead: {
-        FirstName: leadData?.firstName ?? '',
-        LastName:  leadData?.lastName  ?? '',
-        Email:     leadData?.email     ?? '',
-        Phone:     leadData?.phone     ?? '',
-        Company:   leadData?.company   ?? '',
-        Website:   leadData?.website   ?? '',
-        // UTM attribution
-        UTM_Source:   leadData?.utmSource   ?? '',
-        UTM_Medium:   leadData?.utmMedium   ?? '',
-        UTM_Campaign: leadData?.utmCampaign ?? '',
-        UTM_Content:  leadData?.utmContent  ?? '',
-        GCLID:        leadData?.gclid       ?? '',
-        // Score context
+        FirstName:           leadData?.firstName   ?? '',
+        LastName:            leadData?.lastName    ?? '',
+        Email:               leadData?.email       ?? '',
+        Phone:               leadData?.phone       ?? '',
+        Company:             leadData?.company     ?? '',
+        Website:             leadData?.website     ?? '',
+        UTM_Source:          leadData?.utmSource   ?? '',
+        UTM_Medium:          leadData?.utmMedium   ?? '',
+        UTM_Campaign:        leadData?.utmCampaign ?? '',
+        UTM_Content:         leadData?.utmContent  ?? '',
+        GCLID:               leadData?.gclid       ?? '',
         AI_Visibility_Score: score,
       },
       onSuccess: () => {
-        // Fire GA4 event
-        if (window.dataLayer) {
-          window.dataLayer.push({ event: 'booking_confirmed', ai_score: score });
-        }
+        if (window.dataLayer) window.dataLayer.push({ event: 'booking_confirmed', ai_score: score });
         window.location.href = '/thank-you';
       },
-      onError: () => {
-        setIsLoading(false);
-      },
-      onClose: () => {
-        setIsLoading(false);
-      },
+      onError: () => setIsLoading(false),
+      onClose: () => setIsLoading(false),
     });
   }
 
-  const urgencyText = score < 40
-    ? 'Your score is critically low — book now before competitors pull further ahead.'
-    : score < 70
-    ? 'You have clear gaps our team can help you close quickly.'
-    : 'Great foundation — let\'s build on it with a targeted strategy.';
+  const scoreLabel = score >= 70 ? 'text-green-400' : score >= 40 ? 'text-yellow-400' : 'text-red-400';
+  const btnLabel   = isLoading ? 'Loading calendar…' : 'Book My Free Assessment Call →';
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-brand-dark border-t border-white/10 shadow-2xl">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-        {/* Score + message */}
-        <div className="text-center sm:text-left">
-          <p className="font-heading text-lg font-semibold">
-            Your AI Visibility Score:{' '}
-            <span className={score >= 70 ? 'text-green-400' : score >= 40 ? 'text-yellow-400' : 'text-red-400'}>
-              {score}/100
-            </span>
-          </p>
-          <p className="text-gray-400 text-sm">{urgencyText}</p>
+    <>
+      {/* ── Desktop: floating pill bottom-right ── */}
+      <div className="hidden sm:flex fixed bottom-8 right-8 z-50 flex-col items-end gap-2">
+        {/* Score badge */}
+        <div className="bg-[#1e1e1e] border border-white/20 rounded-full px-4 py-1.5 text-xs text-gray-400 shadow-lg">
+          AI Score: <span className={`font-bold font-heading text-sm ${scoreLabel}`}>{score}</span>
+          <span className="text-gray-500">/100</span>
         </div>
-
         {/* CTA button */}
         <button
           onClick={handleBooking}
           disabled={isLoading}
-          className="btn-primary whitespace-nowrap disabled:opacity-70 disabled:cursor-wait"
+          className="btn-primary shadow-2xl shadow-brand-orange/30 disabled:opacity-70 disabled:cursor-wait"
+          style={{ borderRadius: '9999px' }}
         >
-          {isLoading ? 'Loading calendar...' : 'Book My Free Assessment Call →'}
+          {btnLabel}
         </button>
       </div>
-    </div>
+
+      {/* ── Mobile: slim sticky footer ── */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#1a1a1a] border-t border-white/10 px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
+        <div className="flex flex-col">
+          <span className="text-xs text-gray-400">AI Score</span>
+          <span className={`font-heading font-bold text-lg leading-none ${scoreLabel}`}>{score}<span className="text-gray-500 text-xs font-body font-normal">/100</span></span>
+        </div>
+        <button
+          onClick={handleBooking}
+          disabled={isLoading}
+          className="btn-primary text-sm py-3 px-5 disabled:opacity-70 disabled:cursor-wait flex-shrink-0"
+        >
+          {btnLabel}
+        </button>
+      </div>
+
+      {/* Mobile bottom spacer so content isn't hidden behind sticky bar */}
+      <div className="sm:hidden h-20" />
+    </>
   );
 }
