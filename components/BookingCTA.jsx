@@ -2,20 +2,34 @@
 
 import { useState } from 'react';
 
-// Booking CTA:
-// - Desktop: floating pill pinned bottom-right
-// - Mobile: slim sticky footer bar
+// Polls for window.ChiliPiper up to 3s before falling back to direct URL.
+// Fixes the race condition where the script hasn't fully loaded yet.
+function waitForChiliPiper(timeout = 3000) {
+  return new Promise((resolve) => {
+    if (window.ChiliPiper) { resolve(true); return; }
+    const interval = 150;
+    let elapsed = 0;
+    const timer = setInterval(() => {
+      elapsed += interval;
+      if (window.ChiliPiper) { clearInterval(timer); resolve(true); return; }
+      if (elapsed >= timeout)  { clearInterval(timer); resolve(false); }
+    }, interval);
+  });
+}
 
 export default function BookingCTA({ score, leadData }) {
   const [isLoading, setIsLoading] = useState(false);
 
-  function handleBooking() {
+  async function handleBooking() {
     setIsLoading(true);
 
     const subdomain = process.env.NEXT_PUBLIC_CHILIPIPER_SUBDOMAIN;
     const router    = process.env.NEXT_PUBLIC_CHILIPIPER_ROUTER;
 
-    if (typeof window === 'undefined' || !window.ChiliPiper) {
+    const loaded = await waitForChiliPiper();
+
+    if (!loaded) {
+      // Graceful fallback — open booking page directly
       window.open(`https://${subdomain}.chilipiper.com/book/${router}`, '_blank');
       setIsLoading(false);
       return;
@@ -50,14 +64,12 @@ export default function BookingCTA({ score, leadData }) {
 
   return (
     <>
-      {/* ── Desktop: floating pill bottom-right ── */}
+      {/* Desktop: floating pill bottom-right */}
       <div className="hidden sm:flex fixed bottom-8 right-8 z-50 flex-col items-end gap-2">
-        {/* Score badge */}
         <div className="bg-[#1e1e1e] border border-white/20 rounded-full px-4 py-1.5 text-xs text-gray-400 shadow-lg">
           AI Score: <span className={`font-bold font-heading text-sm ${scoreLabel}`}>{score}</span>
           <span className="text-gray-500">/100</span>
         </div>
-        {/* CTA button */}
         <button
           onClick={handleBooking}
           disabled={isLoading}
@@ -68,11 +80,13 @@ export default function BookingCTA({ score, leadData }) {
         </button>
       </div>
 
-      {/* ── Mobile: slim sticky footer ── */}
+      {/* Mobile: slim sticky footer */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#1a1a1a] border-t border-white/10 px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
         <div className="flex flex-col">
           <span className="text-xs text-gray-400">AI Score</span>
-          <span className={`font-heading font-bold text-lg leading-none ${scoreLabel}`}>{score}<span className="text-gray-500 text-xs font-body font-normal">/100</span></span>
+          <span className={`font-heading font-bold text-lg leading-none ${scoreLabel}`}>
+            {score}<span className="text-gray-500 text-xs font-body font-normal">/100</span>
+          </span>
         </div>
         <button
           onClick={handleBooking}
@@ -83,7 +97,6 @@ export default function BookingCTA({ score, leadData }) {
         </button>
       </div>
 
-      {/* Mobile bottom spacer so content isn't hidden behind sticky bar */}
       <div className="sm:hidden h-20" />
     </>
   );
