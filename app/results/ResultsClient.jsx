@@ -138,8 +138,8 @@ export default function ResultsClient() {
         <ResultsTabs auditData={auditData} />
       </div>
 
-      {/* Booking CTA — hide on shared view (no lead data context) */}
-      {!shareId && <BookingCTA score={score} leadData={leadData} />}
+      {/* Booking CTA — always show (leadData is available in both direct and shared views) */}
+      <BookingCTA score={score} leadData={leadData} />
     </div>
   );
 }
