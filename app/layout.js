@@ -1,4 +1,6 @@
 import './globals.css';
+import Script from 'next/script';
+import CookieBanner from '@/components/CookieBanner';
 
 export const metadata = {
   title: 'AI Visibility Assessment | Abstrakt Marketing Group',
@@ -12,13 +14,15 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
-  const chilipiperSubdomain = process.env.NEXT_PUBLIC_CHILIPIPER_SUBDOMAIN;
+const GTM_ID   = process.env.NEXT_PUBLIC_GTM_ID;   // e.g. GTM-XXXXXXX
+const META_ID  = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+const LI_ID    = process.env.NEXT_PUBLIC_LI_PARTNER_ID;
 
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        {/* Google Fonts — Oswald (headings) + Inter (body) */}
+        {/* ── Google Fonts ── */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -26,32 +30,74 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
 
-        {/* Chilipiper — booking modal script */}
-        {chilipiperSubdomain && (
-          <script
-            src={`https://js.chilipiper.com/marketing.js`}
-            type="text/javascript"
-            async
-          />
+        {/* ── GTM consent mode defaults (must fire before GTM loads) ──
+            Sets all ad/analytics consent to denied by default.
+            CookieBanner grants consent when user accepts.             */}
+        {GTM_ID && (
+          <script dangerouslySetInnerHTML={{ __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('consent','default',{
+              ad_storage:             'denied',
+              analytics_storage:      'denied',
+              ad_user_data:           'denied',
+              ad_personalization:     'denied',
+              wait_for_update:        500
+            });
+            gtag('set','ads_data_redaction', true);
+          `}} />
         )}
 
-        {/* Google Tag Manager — TODO: replace GTM-XXXXXXX with real container ID */}
-        {/* <script dangerouslySetInnerHTML={{ __html: `
-          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','GTM-XXXXXXX');
-        `}} /> */}
+        {/* ── Google Tag Manager ── */}
+        {GTM_ID && (
+          <script dangerouslySetInnerHTML={{ __html: `
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','${GTM_ID}');
+          `}} />
+        )}
+
+        {/* ── Meta Pixel (consent-gated — fires only after CookieBanner accept) ── */}
+        {META_ID && (
+          <script dangerouslySetInnerHTML={{ __html: `
+            window._metaPixelId = '${META_ID}';
+          `}} />
+        )}
+
+        {/* ── LinkedIn Insight Tag (consent-gated) ── */}
+        {LI_ID && (
+          <script dangerouslySetInnerHTML={{ __html: `
+            window._liPartnerId = '${LI_ID}';
+          `}} />
+        )}
       </head>
+
       <body className="bg-brand-bg text-white font-body antialiased">
-        {/* GTM noscript fallback — TODO: enable when GTM ID is ready */}
-        {/* <noscript>
-          <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
-            height="0" width="0" style={{ display: 'none', visibility: 'hidden' }} />
-        </noscript> */}
+        {/* GTM noscript fallback */}
+        {GTM_ID && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+              height="0" width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+        )}
 
         {children}
+
+        {/* ── ChiliPiper — loaded with next/script afterInteractive
+            This guarantees window.ChiliPiper is available before any button fires ── */}
+        <Script
+          src="https://js.chilipiper.com/marketing.js"
+          strategy="afterInteractive"
+          id="chilipiper-script"
+        />
+
+        {/* ── Cookie consent banner ── */}
+        <CookieBanner metaPixelId={META_ID} liPartnerId={LI_ID} />
       </body>
     </html>
   );
