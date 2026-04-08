@@ -28,9 +28,10 @@ export async function POST(req) {
       budgetRange:    body.budgetRange,
       runningPaidAds: body.runningPaidAds,
       // Brand maturity
-      brandRating:    body.brandRating,
-      hasSocialMedia: body.hasSocialMedia,
-      aiToolsUsed:    body.aiToolsUsed,
+      brandRating:       body.brandRating,
+      hasSocialMedia:    body.hasSocialMedia,
+      aiToolsUsed:       body.aiToolsUsed,
+      requestReviewCall: body.requestReviewCall ?? false,
       // UTM attribution
       utmSource:   body.utmSource,
       utmMedium:   body.utmMedium,
