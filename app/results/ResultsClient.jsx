@@ -94,6 +94,7 @@ export default function ResultsClient() {
             <button
               onClick={handleShare}
               disabled={shareLoading}
+              title="Generates a link valid for ~7 days"
               className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/30 disabled:opacity-50"
             >
               {shareCopied ? '✓ Link Copied!' : shareLoading ? 'Generating…' : '🔗 Share Results'}
