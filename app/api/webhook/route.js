@@ -39,8 +39,9 @@ export async function POST(req) {
       utmContent:  body.utmContent,
       gclid:       body.gclid,
       // Meta
-      timestamp: new Date().toISOString(),
-      source:    'ai-visibility-assessment',
+      timestamp:  new Date().toISOString(),
+      source:     'ai-visibility-assessment',
+      resultsUrl: body.resultsUrl ?? null,
     };
 
     const res = await fetch(webhookUrl, {
