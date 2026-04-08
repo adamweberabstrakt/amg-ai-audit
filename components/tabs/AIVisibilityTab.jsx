@@ -1,22 +1,41 @@
 'use client';
 
+import { useEffect } from 'react';
+
 // Tab 1: AI Visibility Score
 // Displays the Claude-generated score, breakdown, and visibility summary.
+// Fires a ChiliPiper booking popup 15 seconds after mounting.
 
 export default function AIVisibilityTab({ auditData }) {
-  const claude = auditData?.claude ?? {};
+  const claude    = auditData?.claude    ?? {};
   const breakdown = claude.scoreBreakdown ?? {};
 
+  // 15-second ChiliPiper popup — clears on unmount if user switches tabs
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const subdomain = process.env.NEXT_PUBLIC_CHILIPIPER_SUBDOMAIN;
+      const router    = process.env.NEXT_PUBLIC_CHILIPIPER_ROUTER;
+      if (typeof window !== 'undefined' && window.ChiliPiper && subdomain && router) {
+        window.ChiliPiper.submit(subdomain, router, {
+          lead:    {},
+          onClose: () => {},
+          onError: () => {},
+        });
+      }
+    }, 15000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const breakdownItems = [
-    { label: 'Content Authority',  key: 'contentAuthority',  tip: 'How well your site content signals expertise and relevance to AI crawlers.' },
-    { label: 'Structured Data',    key: 'structuredData',    tip: 'Schema markup, OG tags, and canonical signals that help AI understand your pages.' },
-    { label: 'Brand Signals',      key: 'brandSignals',      tip: 'How recognizable and consistent your brand is across the web.' },
-    { label: 'Local Presence',     key: 'localPresence',     tip: 'Google Business Profile completeness, reviews, and local citation quality.' },
+    { label: 'Content Authority', key: 'contentAuthority', tip: 'How well your site content signals expertise and relevance to AI crawlers.' },
+    { label: 'Structured Data',   key: 'structuredData',   tip: 'Schema markup, OG tags, and canonical signals that help AI understand your pages.' },
+    { label: 'Brand Signals',     key: 'brandSignals',     tip: 'How recognizable and consistent your brand is across the web.' },
+    { label: 'Local Presence',    key: 'localPresence',    tip: 'Google Business Profile completeness, reviews, and local citation quality.' },
   ];
 
   return (
     <div className="space-y-8">
-      {/* What This Means callout */}
+      {/* Why This Matters */}
       <div className="card border-l-4 border-brand-orange">
         <p className="section-label mb-2">Why This Matters</p>
         <p className="text-gray-300 text-sm leading-relaxed">
@@ -51,16 +70,14 @@ export default function AIVisibilityTab({ auditData }) {
         </div>
       </div>
 
-      {/* Recommendations preview */}
+      {/* Recommendations */}
       {claude.topRecommendations?.length > 0 && (
         <div>
           <h3 className="font-heading text-xl font-semibold mb-4">Top Recommendations</h3>
           <div className="space-y-3">
             {claude.topRecommendations.map((rec, i) => (
               <div key={i} className="card flex gap-4">
-                <span className="text-brand-orange font-heading text-2xl font-bold flex-shrink-0">
-                  {i + 1}
-                </span>
+                <span className="text-brand-orange font-heading text-2xl font-bold flex-shrink-0">{i + 1}</span>
                 <p className="text-gray-300 text-sm leading-relaxed pt-1">{rec}</p>
               </div>
             ))}
