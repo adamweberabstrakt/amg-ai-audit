@@ -3,9 +3,16 @@
 @tailwind utilities;
 
 @layer base {
+  /* ── Dark mode (default) ── */
   body {
     background-color: #1a1a1a;
     color: #ffffff;
+  }
+
+  /* ── Light mode ── */
+  html.light body {
+    background-color: #f5f5f5;
+    color: #1a1a1a;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -26,12 +33,51 @@
     @apply inline-block border border-white/30 text-white font-heading font-semibold uppercase tracking-wide px-8 py-4 rounded-lg hover:bg-white hover:text-[#1a1a1a] transition-all duration-200;
   }
 
+  /* Dark card (default) */
   .card {
     @apply bg-[#1e1e1e] rounded-xl p-6 border border-white/10 hover:border-white/20 transition-colors duration-200;
   }
 
+  /* Light card override */
+  html.light .card {
+    @apply bg-white border-gray-200 hover:border-gray-300;
+    color: #1a1a1a;
+  }
+
+  html.light .card p,
+  html.light .card span,
+  html.light .card div {
+    color: inherit;
+  }
+
+  /* Light mode text overrides */
+  html.light .text-gray-300 { color: #374151; }
+  html.light .text-gray-400 { color: #6b7280; }
+  html.light .text-gray-500 { color: #9ca3af; }
+  html.light .text-white    { color: #111827; }
+
+  /* Light mode nav/header */
+  html.light header,
+  html.light .bg-brand-dark {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+  }
+
+  html.light .border-white\/10 { border-color: #e5e7eb; }
+  html.light .border-white\/20 { border-color: #d1d5db; }
+  html.light .bg-white\/10     { background-color: rgba(0,0,0,0.06); }
+
+  /* Light mode sticky footer bars */
+  html.light .bg-\[#1a1a1a\] { background-color: #ffffff; }
+  html.light .bg-\[#1e1e1e\] { background-color: #f9fafb; }
+
   .section-label {
     @apply text-brand-orange font-heading font-semibold uppercase tracking-widest text-xs inline-block;
+  }
+
+  /* Light mode btn-secondary */
+  html.light .btn-secondary {
+    @apply border-gray-300 text-gray-800 hover:bg-gray-800 hover:text-white;
   }
 }
 
@@ -43,9 +89,15 @@
   background-size: 60px 60px;
 }
 
-/* Noise texture */
-.bg-noise-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 200px 200px;
+html.light .bg-grid-pattern {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
 }
+
+/* Logo switching: dark mode = orange logo, light mode = dark logo */
+.dark-logo  { display: block; }
+.light-logo { display: none; }
+
+html.light .dark-logo  { display: none; }
+html.light .light-logo { display: block; }
