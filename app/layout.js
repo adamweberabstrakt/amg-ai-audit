@@ -1,5 +1,4 @@
 import './globals.css';
-import Script from 'next/script';
 import CookieBanner from '@/components/CookieBanner';
 
 export const metadata = {
@@ -72,14 +71,6 @@ export default function RootLayout({ children }) {
         )}
 
         {children}
-
-        {/* ── ChiliPiper — loaded with next/script afterInteractive
-            This guarantees window.ChiliPiper is available before any button fires ── */}
-        <Script
-          src="https://js.chilipiper.com/marketing.js"
-          strategy="afterInteractive"
-          id="chilipiper-script"
-        />
 
         {/* ── Cookie consent banner ── */}
         <CookieBanner />
