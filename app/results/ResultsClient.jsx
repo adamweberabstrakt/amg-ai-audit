@@ -1,22 +1,26 @@
 'use client';
 
-import { useEffect, useState }       from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Image                          from 'next/image';
-import ResultsTabs from '@/components/ResultsTabs';
-import BookingCTA  from '@/components/BookingCTA';
-import ThemeToggle from '@/components/ThemeToggle';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams }   from 'next/navigation';
+import Image                            from 'next/image';
+import ResultsTabs      from '@/components/ResultsTabs';
+import BookingCTA       from '@/components/BookingCTA';
+import ThemeToggle      from '@/components/ThemeToggle';
+import ChiliPiperModal  from '@/components/ChiliPiperModal';
 
 export default function ResultsClient() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const shareId      = searchParams.get('id');
 
-  const [auditData,    setAuditData]    = useState(null);
-  const [leadData,     setLeadData]     = useState(null);
-  const [shareUrl,     setShareUrl]     = useState('');
-  const [shareCopied,  setShareCopied]  = useState(false);
-  const [shareLoading, setShareLoading] = useState(false);
+  const [auditData,     setAuditData]    = useState(null);
+  const [leadData,      setLeadData]     = useState(null);
+  const [shareUrl,      setShareUrl]     = useState('');
+  const [shareCopied,   setShareCopied]  = useState(false);
+  const [shareLoading,  setShareLoading] = useState(false);
+  const [schedulerOpen, setSchedulerOpen] = useState(false);
+  const hasShownAutoPopup = useRef(false);
+  const popupTimer        = useRef(null);
 
   useEffect(() => {
     async function load() {
@@ -42,6 +46,16 @@ export default function ResultsClient() {
     }
     load();
   }, [router, shareId]);
+
+  // Auto-popup: fires once 45s after audit data is loaded
+  useEffect(() => {
+    if (!auditData || hasShownAutoPopup.current) return;
+    popupTimer.current = setTimeout(() => {
+      setSchedulerOpen(true);
+      hasShownAutoPopup.current = true;
+    }, 45000);
+    return () => clearTimeout(popupTimer.current);
+  }, [auditData]);
 
   async function handleShare() {
     if (shareUrl) {
@@ -111,22 +125,22 @@ export default function ResultsClient() {
             <ScoreCircle score={score} />
           </div>
           <div>
-            <p className="section-label mb-2">Your Results</p>
+            <p className="section-label mb-2">AI Search Competitive Assessment</p>
             <h1 className="font-heading text-3xl font-bold mb-3">
-              {leadData.company}'s AI Visibility Assessment
+              {leadData.company} vs. Competitors in AI Search
             </h1>
             <p className="text-gray-300 leading-relaxed max-w-xl">
               {auditData.claude?.visibilitySummary ?? 'Your assessment is complete. Review each tab below for detailed findings.'}
             </p>
-            <div className="mt-4">
+            <div className="mt-4 flex flex-wrap gap-2 items-center">
               <span className={`inline-block px-3 py-1 rounded text-sm font-medium ${
                 auditData.claude?.urgencyLevel === 'high'   ? 'bg-red-900/50 text-red-300' :
                 auditData.claude?.urgencyLevel === 'medium' ? 'bg-yellow-900/50 text-yellow-300' :
                 'bg-green-900/50 text-green-300'
               }`}>
-                {auditData.claude?.urgencyLevel === 'high'   ? '🔴 High Priority' :
-                 auditData.claude?.urgencyLevel === 'medium' ? '🟡 Moderate Priority' :
-                 '🟢 Low Priority'} — {auditData.claude?.urgencyLevel} urgency
+                {auditData.claude?.urgencyLevel === 'high'   ? '🔴 Competitors are pulling ahead' :
+                 auditData.claude?.urgencyLevel === 'medium' ? '🟡 Competitive gap is widening' :
+                 '🟢 You\'re holding your ground'} — {auditData.claude?.urgencyLevel} priority
               </span>
             </div>
           </div>
@@ -135,11 +149,14 @@ export default function ResultsClient() {
 
       {/* Tabs */}
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <ResultsTabs auditData={auditData} />
+        <ResultsTabs auditData={auditData} onBook={() => setSchedulerOpen(true)} />
       </div>
 
       {/* Booking CTA — always show (leadData is available in both direct and shared views) */}
-      <BookingCTA score={score} leadData={leadData} />
+      <BookingCTA score={score} leadData={leadData} onOpen={() => setSchedulerOpen(true)} />
+
+      {/* ChiliPiper scheduling modal */}
+      <ChiliPiperModal isOpen={schedulerOpen} onClose={() => setSchedulerOpen(false)} />
     </div>
   );
 }
