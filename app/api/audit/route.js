@@ -7,6 +7,7 @@ import { runPageSpeed }     from '../providers/pagespeed';
 import { runCrawl }         from '../providers/crawl';
 import { runPlaces }        from '../providers/places';
 import { runClaudeAnalysis } from '../providers/claude-analysis';
+import { runSemrush }        from '../providers/semrush';
 
 // Extend Vercel function timeout to 60s (default is 10s — not enough for parallel API calls)
 export const maxDuration = 60;
@@ -24,15 +25,17 @@ export async function POST(req) {
     const url = website.startsWith('http') ? website : `https://${website}`;
 
     // ── Run all providers in parallel ───────────────────────────────────────
-    const [pageSpeedData, crawlData, placesData] = await Promise.allSettled([
+    const [pageSpeedData, crawlData, placesData, semrushData] = await Promise.allSettled([
       runPageSpeed(url),
       runCrawl(url),
       runPlaces(company),
+      runSemrush({ website: url, competitor1, competitor2 }),
     ]);
 
-    const ps   = pageSpeedData.status === 'fulfilled'  ? pageSpeedData.value  : null;
-    const crawl = crawlData.status   === 'fulfilled'   ? crawlData.value      : null;
-    const places = placesData.status === 'fulfilled'   ? placesData.value     : null;
+    const ps       = pageSpeedData.status === 'fulfilled'  ? pageSpeedData.value  : null;
+    const crawl    = crawlData.status     === 'fulfilled'   ? crawlData.value      : null;
+    const places   = placesData.status   === 'fulfilled'   ? placesData.value     : null;
+    const semrush  = semrushData.status  === 'fulfilled'   ? semrushData.value    : null;
 
     // ── Run Claude analysis — wrapped so a failure returns fallback, not 500 ─
     let claudeData;
@@ -49,6 +52,7 @@ export async function POST(req) {
         pageSpeedScore: ps?.score ?? null,
         crawlData:      crawl,
         placesData:     places,
+        semrushData:    semrush,
       });
     } catch (claudeErr) {
       console.error('[audit/route] Claude analysis failed, using fallback:', claudeErr);
@@ -59,6 +63,7 @@ export async function POST(req) {
       pageSpeed: ps,
       crawl,
       places,
+      semrush,
       claude: claudeData,
       meta: {
         company,
