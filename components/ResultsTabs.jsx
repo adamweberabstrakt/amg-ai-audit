@@ -1,20 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import AIVisibilityTab  from './tabs/AIVisibilityTab';
+import OverviewTab     from './tabs/OverviewTab';
+import AIVisibilityTab from './tabs/AIVisibilityTab';
 import WebsiteHealthTab from './tabs/WebsiteHealthTab';
 import LocalPresenceTab from './tabs/LocalPresenceTab';
 import BrandGapTab      from './tabs/BrandGapTab';
 
 const TABS = [
-  { id: 'ai',      label: '🤖 AI Visibility',      component: AIVisibilityTab },
-  { id: 'website', label: '⚡ Website Health',       component: WebsiteHealthTab },
-  { id: 'local',   label: '📍 Local & Search',       component: LocalPresenceTab },
-  { id: 'brand',   label: '🎯 Brand Gap Analysis',  component: BrandGapTab },
+  { id: 'overview', label: '📊 Overview',           component: OverviewTab },
+  { id: 'ai',       label: '🤖 AI Visibility',       component: AIVisibilityTab },
+  { id: 'website',  label: '⚡ Website Health',       component: WebsiteHealthTab },
+  { id: 'local',    label: '📍 Local & Search',       component: LocalPresenceTab },
+  { id: 'brand',    label: '🎯 Brand Gap Analysis',   component: BrandGapTab },
 ];
 
-export default function ResultsTabs({ auditData }) {
-  const [activeTab, setActiveTab] = useState('ai');
+export default function ResultsTabs({ auditData, onBook }) {
+  const [activeTab, setActiveTab] = useState('overview');
 
   const ActiveComponent = TABS.find((t) => t.id === activeTab)?.component;
 
@@ -38,7 +40,7 @@ export default function ResultsTabs({ auditData }) {
       </div>
 
       {/* Active tab content */}
-      {ActiveComponent && <ActiveComponent auditData={auditData} />}
+      {ActiveComponent && <ActiveComponent auditData={auditData} onBook={onBook} />}
     </div>
   );
 }
