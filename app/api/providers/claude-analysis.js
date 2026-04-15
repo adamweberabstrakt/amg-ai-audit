@@ -1,7 +1,6 @@
 // app/api/providers/claude-analysis.js
 // One Claude call per audit. Returns AI visibility score, breakdown, 
 // brand gap analysis, and top recommendations.
-// Using claude-haiku for cost efficiency (~$0.003–0.008 per audit).
 
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -17,29 +16,24 @@ export async function runClaudeAnalysis({
   pageSpeedScore,
   crawlData,
   placesData,
+  semrushData,
 }) {
   const client = new Anthropic();
 
   const prompt = buildPrompt({
     company, website, industry, goal, budgetRange, brandRating,
-    competitor1, competitor2, pageSpeedScore, crawlData, placesData,
+    competitor1, competitor2, pageSpeedScore, crawlData, placesData, semrushData,
   });
 
   const message = await client.messages.create({
-    model:      'claude-haiku-4-5-20251001', // cost-efficient for per-audit use
+    model:      'claude-haiku-4-5-20251001',
     max_tokens: 1500,
-    messages: [
-      {
-        role:    'user',
-        content: prompt,
-      },
-    ],
+    messages: [{ role: 'user', content: prompt }],
   });
 
   const raw = message.content[0]?.text ?? '{}';
 
   try {
-    // Strip markdown code fences if present
     const cleaned = raw.replace(/```json|```/g, '').trim();
     return JSON.parse(cleaned);
   } catch {
@@ -51,9 +45,13 @@ export async function runClaudeAnalysis({
 // ─── Prompt ───────────────────────────────────────────────────────────────────
 function buildPrompt({
   company, website, industry, goal, budgetRange, brandRating,
-  competitor1, competitor2, pageSpeedScore, crawlData, placesData,
+  competitor1, competitor2, pageSpeedScore, crawlData, placesData, semrushData,
 }) {
-  return `You are a senior digital marketing analyst at Abstrakt Marketing Group reviewing a business's online AI visibility.
+  const semrushBlock = semrushData
+    ? buildSemrushBlock(semrushData, company)
+    : 'SEMRush data not available.';
+
+  return `You are a senior digital marketing analyst at Abstrakt Marketing Group reviewing a business's AI visibility and competitive position in search.
 
 BUSINESS INFO:
 - Company: ${company}
@@ -76,31 +74,59 @@ TECHNICAL DATA:
 - GBP rating: ${placesData?.rating ?? 'N/A'} (${placesData?.reviewCount ?? 0} reviews)
 - Competitors provided: ${[competitor1, competitor2].filter(Boolean).join(', ') || 'None'}
 
+COMPETITOR & SEARCH DATA (SEMRush):
+${semrushBlock}
+
 Return ONLY a valid JSON object with this exact structure, no preamble, no markdown:
 
 {
   "aiVisibilityScore": <number 0-100, overall score>,
   "scoreBreakdown": {
     "contentAuthority": <number 0-100, based on meta, title, schema, content signals>,
-    "structuredData": <number 0-100, based on schema, OG, canonical presence>,
-    "brandSignals": <number 0-100, based on GBP, reviews, brand maturity rating>,
-    "localPresence": <number 0-100, based on GBP completeness and review count>
+    "structuredData":   <number 0-100, based on schema, OG, canonical presence>,
+    "brandSignals":     <number 0-100, based on GBP, reviews, brand maturity rating>,
+    "localPresence":    <number 0-100, based on GBP completeness and review count>
   },
-  "visibilitySummary": "<2-3 sentence plain-language explanation for a business owner — what this score means for them and how AI tools currently see their brand>",
-  "brandGapAnalysis": "<3-4 paragraph analysis written for a marketing manager, not a developer. Explain what gaps exist, why they matter for AI discoverability, and what competitors with better scores likely have that this business doesn't. Be specific to the industry if possible.>",
+  "visibilitySummary": "<2-3 sentence explanation for a business owner — what this score means and how AI tools see their brand vs. competitors>",
+  "brandGapAnalysis": "<3-4 paragraph analysis for a marketing manager. Reference specific competitor keyword gaps and domain authority differences where available. Explain what competitors are doing better, why it matters for AI discoverability, and what this business needs to close the gap. Be specific to the industry.>",
   "topRecommendations": [
     "<recommendation 1 — specific, actionable, written for a non-technical marketing manager>",
     "<recommendation 2>",
     "<recommendation 3>"
   ],
-  "urgencyLevel": "<high|medium|low based on score and competitive context>"
+  "urgencyLevel": "<high|medium|low based on score and competitive gap size>"
 }`;
+}
+
+function buildSemrushBlock(semrush, company) {
+  const lines = [];
+
+  if (semrush.clientStats) {
+    const s = semrush.clientStats;
+    lines.push(`${company}: authority score ${s.authorityScore}, ~${s.organicTraffic.toLocaleString()} monthly organic visits, ${s.organicKeywords.toLocaleString()} ranking keywords`);
+  }
+
+  ['competitor1', 'competitor2'].forEach((key) => {
+    const c = semrush[key];
+    if (!c) return;
+    if (c.stats) {
+      lines.push(`${c.domain}: authority score ${c.stats.authorityScore}, ~${c.stats.organicTraffic.toLocaleString()} monthly organic visits, ${c.stats.organicKeywords.toLocaleString()} ranking keywords`);
+    }
+    if (c.keywords?.length) {
+      const kws = c.keywords
+        .map((k) => `"${k.keyword}" (pos ${k.position}, ${k.volume.toLocaleString()}/mo, $${k.cpc.toFixed(2)} CPC)`)
+        .join('; ');
+      lines.push(`${c.domain} top transactional keywords: ${kws}`);
+    }
+  });
+
+  return lines.length ? lines.join('\n') : 'Competitor domains not found in SEMRush database.';
 }
 
 // ─── Fallback if Claude parse fails ───────────────────────────────────────────
 function getFallbackResponse(company) {
   return {
-    aiVisibilityScore:  42,
+    aiVisibilityScore: 42,
     scoreBreakdown: {
       contentAuthority: 40,
       structuredData:   35,
