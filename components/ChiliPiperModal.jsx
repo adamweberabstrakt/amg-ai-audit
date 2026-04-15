@@ -2,12 +2,10 @@
 
 import { useEffect } from 'react';
 
+// Hardcoded like adsmith — avoids NEXT_PUBLIC_ env var inlining issues
+const CHILIPIPER_URL = 'https://abstraktmg.chilipiper.com/round-robin/inbound-sdr';
+
 export default function ChiliPiperModal({ isOpen, onClose }) {
-  const subdomain = process.env.NEXT_PUBLIC_CHILIPIPER_SUBDOMAIN;
-  const router    = process.env.NEXT_PUBLIC_CHILIPIPER_ROUTER;
-  const src       = subdomain && router
-    ? `https://${subdomain}.chilipiper.com/book/${router}`
-    : null;
 
   // Lock body scroll when open; close on Escape
   useEffect(() => {
@@ -22,7 +20,7 @@ export default function ChiliPiperModal({ isOpen, onClose }) {
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen || !src) return null;
+  if (!isOpen) return null;
 
   return (
     <div
@@ -59,7 +57,7 @@ export default function ChiliPiperModal({ isOpen, onClose }) {
         {/* Iframe */}
         <div style={{ height: '520px' }}>
           <iframe
-            src={src}
+            src={CHILIPIPER_URL}
             title="Schedule a Meeting"
             className="w-full h-full border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media"
