@@ -1,41 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-
-function waitForChiliPiper(timeout = 3000) {
-  return new Promise((resolve) => {
-    if (window.ChiliPiper) { resolve(true); return; }
-    const interval = 150;
-    let elapsed = 0;
-    const timer = setInterval(() => {
-      elapsed += interval;
-      if (window.ChiliPiper) { clearInterval(timer); resolve(true); return; }
-      if (elapsed >= timeout)  { clearInterval(timer); resolve(false); }
-    }, interval);
-  });
-}
-
 export default function AIVisibilityTab({ auditData }) {
   const claude    = auditData?.claude    ?? {};
   const breakdown = claude.scoreBreakdown ?? {};
-
-  // Fire ChiliPiper popup 15s after landing on this tab
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      const subdomain = process.env.NEXT_PUBLIC_CHILIPIPER_SUBDOMAIN;
-      const router    = process.env.NEXT_PUBLIC_CHILIPIPER_ROUTER;
-      if (!subdomain || !router) return;
-      const loaded = await waitForChiliPiper();
-      if (loaded) {
-        window.ChiliPiper.submit(subdomain, router, {
-          lead:    {},
-          onClose: () => {},
-          onError: () => {},
-        });
-      }
-    }, 15000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const breakdownItems = [
     { label: 'Content Authority', key: 'contentAuthority', tip: 'How well your site content signals expertise and relevance to AI crawlers.' },
