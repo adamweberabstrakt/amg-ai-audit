@@ -1,8 +1,23 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
+
 export default function AIVisibilityTab({ auditData }) {
   const claude    = auditData?.claude    ?? {};
   const breakdown = claude.scoreBreakdown ?? {};
+  const ref       = useRef(null);
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setAnimated(true); observer.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const breakdownItems = [
     { label: 'Content Authority', key: 'contentAuthority', tip: 'How well your site content signals expertise and relevance to AI crawlers.' },
@@ -22,7 +37,7 @@ export default function AIVisibilityTab({ auditData }) {
         </p>
       </div>
 
-      <div>
+      <div ref={ref}>
         <h3 className="font-heading text-xl font-semibold mb-5">Score Breakdown</h3>
         <div className="grid sm:grid-cols-2 gap-4">
           {breakdownItems.map((item) => {
@@ -34,8 +49,12 @@ export default function AIVisibilityTab({ auditData }) {
                   <span className={`font-heading text-xl font-bold ${scoreColor(val)}`}>{val}</span>
                 </div>
                 <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-3">
-                  <div className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${val}%`, backgroundColor: scoreHex(val) }} />
+                  <div className="h-full rounded-full"
+                    style={{
+                      width: animated ? `${val}%` : '0%',
+                      backgroundColor: scoreHex(val),
+                      transition: animated ? 'width 1.2s cubic-bezier(0.4,0,0.2,1)' : 'none',
+                    }} />
                 </div>
                 <p className="text-xs text-gray-500">{item.tip}</p>
               </div>
