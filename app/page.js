@@ -27,7 +27,7 @@ function Header() {
     <header className="border-b border-white/10 px-6 py-4 sticky top-0 z-50 bg-[#1a1a1a]/95 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <a href="/" className="flex items-center">
-          <img src="/brand/logo-white.svg" alt="Abstrakt Marketing Group" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
+          <img src="/brand/logo-tagline-white.png" alt="Abstrakt Marketing Group" style={{ height: '40px', width: 'auto', objectFit: 'contain' }} />
         </a>
         <Link href="/assess" className="btn-primary text-sm px-5 py-2.5">
           Get Free Assessment →
@@ -122,17 +122,13 @@ function Hero() {
 // ─── Pain Stats ───────────────────────────────────────────────────────────────
 function PainStats() {
   return (
-    <section className="relative px-6 py-0">
-      <div className="absolute top-0 left-0 right-0 h-16 bg-[#111] skew-y-[-1deg] origin-left -translate-y-8 pointer-events-none" />
-      <div className="relative bg-[#111] py-20">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-center text-gray-600 text-xs uppercase tracking-[0.2em] font-heading mb-12">
-            Why your competitors are pulling ahead right now
-          </p>
-          <CountUpStats />
-        </div>
+    <section className="bg-[#111] border-y border-white/10 py-20 px-6">
+      <div className="max-w-6xl mx-auto">
+        <p className="text-center text-gray-600 text-xs uppercase tracking-[0.2em] font-heading mb-12">
+          Why your competitors are pulling ahead right now
+        </p>
+        <CountUpStats />
       </div>
-      <div className="absolute bottom-0 left-0 right-0 h-16 bg-[#111] skew-y-[1deg] origin-right translate-y-8 pointer-events-none" />
     </section>
   );
 }
@@ -241,53 +237,52 @@ function PainPoints() {
 // ─── AI Explainer Image ────────────────────────────────────────────────────────
 // ─── Scrolling Trust Banner ───────────────────────────────────────────────────
 function ScrollingTrustBanner() {
-  const badges = [
-    { img: '/brand/badge-semrush.png',        alt: 'SEMRush Certified Agency Partner', h: 48 },
-    { img: '/brand/badge-google-partner.png', alt: 'Google Partner',                  h: 40 },
-    { img: '/brand/badge-clutch.png',         alt: 'Clutch — Clients Say We Deliver', h: 56 },
-    { img: '/brand/badge-inc5000.png',        alt: 'Inc. 5000 Ten-Time Honoree',       h: 56 },
-    { img: '/brand/badge-forbes.avif',        alt: 'As Featured in Forbes',           h: 36 },
+  const items = [
+    { type: 'badge', img: '/brand/badge-semrush.png',        alt: 'SEMRush Certified Agency Partner', h: 44 },
+    { type: 'text',  label: '200+ Creative Awards' },
+    { type: 'badge', img: '/brand/badge-google-partner.png', alt: 'Google Partner',                  h: 36 },
+    { type: 'text',  label: '2,000+ Active B2B Clients' },
+    { type: 'badge', img: '/brand/badge-clutch.png',         alt: 'Clutch — Clients Say We Deliver', h: 52 },
+    { type: 'text',  label: '500+ Websites Built & Ranked' },
+    { type: 'badge', img: '/brand/badge-inc5000.png',        alt: 'Inc. 5000 Ten-Time Honoree',      h: 52 },
+    { type: 'text',  label: '$1B+ Revenue Generated' },
+    { type: 'badge', img: '/brand/badge-forbes.avif',        alt: 'As Featured in Forbes',           h: 32 },
+    { type: 'text',  label: '10 Consecutive Years on Inc. 5000' },
   ];
 
-  const textItems = [
-    '200+ Creative Awards',
-    '2,000+ Active B2B Clients',
-    '500+ Websites Built & Ranked',
-    '$1B+ Revenue Generated for Clients',
-    '10 Consecutive Years on Inc. 5000',
-  ];
-
-  // Interleave badges and text items for the marquee track
-  const track = [
-    ...badges.map((b) => ({ type: 'badge', ...b })),
-    ...textItems.map((t) => ({ type: 'text', label: t })),
-  ];
-  // Duplicate for seamless loop
-  const items = [...track, ...track];
+  const Track = () => (
+    <div className="flex items-center gap-16 flex-shrink-0 pr-16">
+      {items.map((item, i) => (
+        <div key={i} className="flex-shrink-0">
+          {item.type === 'badge' ? (
+            <img
+              src={item.img}
+              alt={item.alt}
+              style={{ height: `${item.h}px`, width: 'auto', objectFit: 'contain', opacity: 0.8 }}
+            />
+          ) : (
+            <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-400 whitespace-nowrap">
+              ✦&nbsp;&nbsp;{item.label}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 
   return (
-    <div className="relative overflow-hidden bg-[#111] border-y border-white/10 py-5">
-      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#111] to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#111] to-transparent z-10 pointer-events-none" />
-      <div className="flex gap-12 items-center" style={{ animation: 'marquee 40s linear infinite', width: 'max-content' }}>
-        {items.map((item, i) => (
-          <div key={i} className="flex items-center gap-12 flex-shrink-0">
-            {item.type === 'badge' ? (
-              <img
-                src={item.img}
-                alt={item.alt}
-                style={{ height: `${item.h}px`, width: 'auto', objectFit: 'contain', opacity: 0.85 }}
-              />
-            ) : (
-              <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-400 whitespace-nowrap">
-                ✦ {item.label}
-              </span>
-            )}
-          </div>
-        ))}
+    <div className="bg-[#111] border-y border-white/10 py-5 overflow-hidden">
+      {/* Fade edges */}
+      <div className="pointer-events-none absolute left-0 w-24 h-full bg-gradient-to-r from-[#111] to-transparent z-10" style={{ position: 'absolute' }} />
+      <div className="pointer-events-none absolute right-0 w-24 h-full bg-gradient-to-l from-[#111] to-transparent z-10" style={{ position: 'absolute' }} />
+
+      <div className="flex" style={{ animation: 'trustMarquee 50s linear infinite' }}>
+        <Track />
+        <Track />
       </div>
+
       <style>{`
-        @keyframes marquee {
+        @keyframes trustMarquee {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
