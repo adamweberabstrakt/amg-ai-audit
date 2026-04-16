@@ -24,6 +24,12 @@ export default function LocalPresenceTab({ auditData }) {
 
   return (
     <div className="space-y-8">
+      {/* Tab identity */}
+      <div className="flex items-center gap-3">
+        <img src="/brand/logomark-crimson.png" alt="" aria-hidden="true" style={{ height: '28px', width: 'auto' }} />
+        <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-400">Local &amp; Search</span>
+      </div>
+
       {/* Why This Matters */}
       <div className="card border-l-4 border-brand-orange">
         <p className="section-label mb-2">Why This Matters</p>

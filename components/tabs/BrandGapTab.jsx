@@ -9,6 +9,12 @@ export default function BrandGapTab({ auditData }) {
 
   return (
     <div className="space-y-8">
+      {/* Tab identity */}
+      <div className="flex items-center gap-3">
+        <img src="/brand/logomark-white.png" alt="" aria-hidden="true" style={{ height: '28px', width: 'auto', filter: 'grayscale(1)', opacity: 0.5 }} />
+        <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-400">Brand Gap</span>
+      </div>
+
       {/* Why This Matters */}
       <div className="card border-l-4 border-brand-orange">
         <p className="section-label mb-2">Why This Matters</p>

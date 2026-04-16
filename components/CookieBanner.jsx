@@ -23,15 +23,20 @@ export default function CookieBanner() {
   }, []);
 
   function applyConsent(consent) {
-    if (typeof window === 'undefined' || !window.dataLayer) return;
-    // This single event is all GTM needs — it will fire/suppress tags accordingly
-    window.dataLayer.push({
-      event:               'consent_update',
-      ad_storage:          consent.marketing ? 'granted' : 'denied',
-      analytics_storage:   consent.analytics ? 'granted' : 'denied',
-      ad_user_data:        consent.marketing ? 'granted' : 'denied',
-      ad_personalization:  consent.marketing ? 'granted' : 'denied',
-    });
+    if (typeof window === 'undefined') return;
+    // Use gtag consent update (defined in layout.js) — this is the correct Consent Mode v2 approach
+    if (typeof window.gtag === 'function') {
+      window.gtag('consent', 'update', {
+        ad_storage:          consent.marketing ? 'granted' : 'denied',
+        analytics_storage:   consent.analytics ? 'granted' : 'denied',
+        ad_user_data:        consent.marketing ? 'granted' : 'denied',
+        ad_personalization:  consent.marketing ? 'granted' : 'denied',
+      });
+    }
+    // Also push to dataLayer for GTM trigger listeners
+    if (window.dataLayer) {
+      window.dataLayer.push({ event: 'consent_update' });
+    }
   }
 
   function accept() {

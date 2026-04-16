@@ -1,18 +1,21 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import CountUpStats from '@/components/CountUpStats';
+import ReviewSlider from '@/components/ReviewSlider';
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white overflow-x-hidden">
       <Header />
       <Hero />
+      <ScrollingTrustBanner />
       <PainStats />
       <PainPoints />
-      <AIExplainer />
       <WhatYouGet />
+      <ReviewSlider />
       <TrustBar />
       <FinalCTA />
+      <GrowZoneBanner />
       <Footer />
     </div>
   );
@@ -24,7 +27,7 @@ function Header() {
     <header className="border-b border-white/10 px-6 py-4 sticky top-0 z-50 bg-[#1a1a1a]/95 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <a href="/" className="flex items-center">
-          <img src="/logo-orange.png" alt="Abstrakt Marketing Group" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
+          <img src="/brand/logo-white.svg" alt="Abstrakt Marketing Group" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
         </a>
         <Link href="/assess" className="btn-primary text-sm px-5 py-2.5">
           Get Free Assessment →
@@ -81,21 +84,27 @@ function Hero() {
               </Link>
               <p className="text-sm text-gray-600">No credit card &nbsp;·&nbsp; Takes 2 minutes</p>
             </div>
+
+            {/* Trust stats row */}
+            <div className="flex flex-wrap gap-6 mt-8 pt-8 border-t border-white/10">
+              {[
+                { num: '2,000+', label: 'Active clients' },
+                { num: '500+',   label: 'Websites built' },
+                { num: '$1B+',   label: 'Revenue generated' },
+              ].map((s) => (
+                <div key={s.num} className="flex items-baseline gap-2">
+                  <span className="font-heading text-2xl font-bold text-brand-orange leading-none">{s.num}</span>
+                  <span className="text-gray-500 text-sm">{s.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Proof widget */}
-          <div className="lg:flex-shrink-0 lg:w-64 w-full bg-[#1e1e1e]/80 border border-white/10 rounded-2xl p-7 backdrop-blur-sm">
-            <p className="font-heading text-xs text-brand-orange uppercase tracking-widest mb-5">Trusted by B2B companies</p>
-            {[
-              { num: '2,000+', label: 'Active clients across North America' },
-              { num: '500+',   label: 'Websites built & optimized' },
-              { num: '$1B+',   label: 'Revenue generated for clients' },
-            ].map((s, i) => (
-              <div key={s.num} className={`flex items-baseline gap-3 ${i < 2 ? 'mb-5 pb-5 border-b border-white/10' : ''}`}>
-                <span className="font-heading text-3xl font-bold text-brand-orange leading-none">{s.num}</span>
-                <span className="text-gray-400 text-sm leading-snug">{s.label}</span>
-              </div>
-            ))}
+          {/* Wistia video */}
+          <div className="lg:flex-shrink-0 lg:w-[480px] w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(232,93,4,0.08)]">
+            <style>{`wistia-player[media-id='m2kgo37bny']:not(:defined){background:center/contain no-repeat url('https://fast.wistia.com/embed/medias/m2kgo37bny/swatch');display:block;filter:blur(5px);padding-top:56.25%}`}</style>
+            {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
+            <wistia-player media-id="m2kgo37bny" aspect="1.7777777777777777"></wistia-player>
           </div>
         </div>
       </div>
@@ -230,42 +239,64 @@ function PainPoints() {
 }
 
 // ─── AI Explainer Image ────────────────────────────────────────────────────────
-function AIExplainer() {
+// ─── Scrolling Trust Banner ───────────────────────────────────────────────────
+function ScrollingTrustBanner() {
+  const badges = [
+    { img: '/brand/badge-semrush.png',        alt: 'SEMRush Certified Agency Partner', h: 48 },
+    { img: '/brand/badge-google-partner.png', alt: 'Google Partner',                  h: 40 },
+    { img: '/brand/badge-clutch.png',         alt: 'Clutch — Clients Say We Deliver', h: 56 },
+    { img: '/brand/badge-inc5000.png',        alt: 'Inc. 5000 Ten-Time Honoree',       h: 56 },
+    { img: '/brand/badge-forbes.avif',        alt: 'As Featured in Forbes',           h: 36 },
+  ];
+
+  const textItems = [
+    '200+ Creative Awards',
+    '2,000+ Active B2B Clients',
+    '500+ Websites Built & Ranked',
+    '$1B+ Revenue Generated for Clients',
+    '10 Consecutive Years on Inc. 5000',
+  ];
+
+  // Interleave badges and text items for the marquee track
+  const track = [
+    ...badges.map((b) => ({ type: 'badge', ...b })),
+    ...textItems.map((t) => ({ type: 'text', label: t })),
+  ];
+  // Duplicate for seamless loop
+  const items = [...track, ...track];
+
   return (
-    <section className="relative px-6 py-24 bg-[#111] overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-orange/5 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="relative max-w-6xl mx-auto">
-        <div className="text-center mb-14">
-          <p className="section-label mb-4">How AI Search Really Works</p>
-          <h2 className="font-heading text-4xl md:text-5xl font-bold mb-5 leading-tight">
-            Why Your Competitors Show Up —{' '}
-            <span className="text-brand-orange">And You Don't</span>
-          </h2>
-          <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed">
-            AI engines don't browse your site like a human. They synthesize signals from across the web — and if your signals are weaker than your competitors, they get the recommendation. You don't.
-          </p>
-        </div>
-
-        <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(232,93,4,0.08)]">
-          <Image
-            src="https://abstrakt-ai-brand-lift.vercel.app/images/ai-search-explainer.png"
-            alt="How AI Search Works: From Query to Answer"
-            width={1200}
-            height={600}
-            className="w-full h-auto"
-            unoptimized
-          />
-          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#111] to-transparent pointer-events-none" />
-        </div>
+    <div className="relative overflow-hidden bg-[#111] border-y border-white/10 py-5">
+      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#111] to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#111] to-transparent z-10 pointer-events-none" />
+      <div className="flex gap-12 items-center" style={{ animation: 'marquee 40s linear infinite', width: 'max-content' }}>
+        {items.map((item, i) => (
+          <div key={i} className="flex items-center gap-12 flex-shrink-0">
+            {item.type === 'badge' ? (
+              <img
+                src={item.img}
+                alt={item.alt}
+                style={{ height: `${item.h}px`, width: 'auto', objectFit: 'contain', opacity: 0.85 }}
+              />
+            ) : (
+              <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-400 whitespace-nowrap">
+                ✦ {item.label}
+              </span>
+            )}
+          </div>
+        ))}
       </div>
-    </section>
+      <style>{`
+        @keyframes marquee {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
+    </div>
   );
 }
 
-// ─── What You Get ──────────────────────────────────────────────────────────────
+
 function WhatYouGet() {
   const items = [
     {
@@ -441,6 +472,30 @@ function FinalCTA() {
         <p className="text-gray-600 text-sm mt-5">No credit card &nbsp;·&nbsp; No commitment</p>
       </div>
     </section>
+  );
+}
+
+// ─── Grow Zone Banner ─────────────────────────────────────────────────────────
+function GrowZoneBanner() {
+  return (
+    <div className="bg-[#111] border-t border-white/10 px-6 py-6">
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p className="text-sm text-gray-400 text-center sm:text-left">
+          Want to learn more about AI visibility and SEO?
+        </p>
+        <a
+          href="https://www.abstraktmg.com/grow-zone/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-sm font-heading font-semibold text-brand-orange hover:text-orange-400 transition-colors whitespace-nowrap"
+        >
+          Explore the Grow Zone
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      </div>
+    </div>
   );
 }
 

@@ -22,6 +22,12 @@ export default function OverviewTab({ auditData, onBook }) {
   return (
     <div className="space-y-8">
 
+      {/* Tab identity */}
+      <div className="flex items-center gap-3">
+        <img src="/brand/logomark-teal.png" alt="" aria-hidden="true" style={{ height: '28px', width: 'auto' }} />
+        <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-400">Overview</span>
+      </div>
+
       {/* Summary narrative */}
       {claude.visibilitySummary && (
         <div className="card border-l-4 border-brand-orange">

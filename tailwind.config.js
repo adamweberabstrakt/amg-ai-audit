@@ -17,8 +17,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        heading: ['Oswald', 'sans-serif'],
-        body:    ['Inter', 'sans-serif'],
+        heading: ['Barlow Condensed', 'sans-serif'],
+        body:    ['Barlow', 'sans-serif'],
       },
     },
   },

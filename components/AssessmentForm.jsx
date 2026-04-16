@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { captureUTMParams } from '@/lib/utmCapture';
 import AuditLoading from './AuditLoading';
@@ -8,9 +8,18 @@ import AuditLoading from './AuditLoading';
 const TOTAL_STEPS = 3;
 
 const INDUSTRIES = [
-  'Manufacturing','Technology / Software','Professional Services',
-  'Healthcare','Construction / Trades','Financial Services',
-  'Logistics / Distribution','Real Estate','Staffing / HR','Other',
+  'Accounting','Architecture','Automotive','B2B SaaS','Cleaning',
+  'Commercial Printing','Construction','Consulting','Cybersecurity','E-commerce',
+  'Education','Electrical Services','Engineering Services','Environmental Services',
+  'Event Management','Facilities Management','Finance','Financial Services',
+  'Fleet Management','Flooring','Healthcare','HVAC','Industrial Equipment',
+  'Insurance','Janitorial Services','Landscaping','LED Lighting','Legal Services',
+  'Logistics & Supply Chain','Managed Services (IT)','Manufacturing',
+  'Marketing Services','Merchant Services','Outsourced HR','Painting','Paving',
+  'Pest Control','Plumbing','Professional Services','Property Management',
+  'Real Estate','Roofing','Security Services','Solar','Staffing & Recruiting',
+  'Technology','Telecom','Training & Development','Warehousing & Distribution',
+  'Waste Management','Other',
 ];
 
 const GOALS = [
@@ -37,6 +46,8 @@ export default function AssessmentForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [utmParams, setUtmParams] = useState({});
   const [errors, setErrors]   = useState({});
+  const formOpenTime = useState(() => Date.now())[0];
+  const honeypotRef  = useRef(null);
 
   const [formData, setFormData] = useState({
     firstName:'', lastName:'', email:'', phone:'', company:'', website:'',
@@ -105,7 +116,7 @@ export default function AssessmentForm() {
     setIsLoading(true);
     const shareId    = crypto.randomUUID();
     const resultsUrl = `${window.location.origin}/results?id=${shareId}`;
-    const payload    = { ...formData, ...utmParams, resultsUrl };
+    const payload    = { ...formData, ...utmParams, resultsUrl, _hp: honeypotRef.current?.value ?? '', _t: formOpenTime };
 
     try {
       fetch('/api/webhook', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) }).catch(()=>{});
@@ -134,6 +145,10 @@ export default function AssessmentForm() {
       <div className="max-w-2xl mx-auto">
         <StepProgress current={step} total={TOTAL_STEPS} />
 
+        {/* Honeypot — hidden from real users, bots fill this */}
+        <input ref={honeypotRef} type="text" name="_hp" tabIndex={-1} autoComplete="off"
+          aria-hidden="true" style={{ display: 'none' }} />
+
         <div style={{ animation: 'stepFadeIn 0.3s ease-out' }}>
           {step === 1 && <Step1 formData={formData} update={update} errors={errors} />}
           {step === 2 && <Step2 formData={formData} update={update} errors={errors} />}
@@ -160,6 +175,12 @@ export default function AssessmentForm() {
           )}
         </div>
       </div>
+      <p className="text-center text-xs text-gray-600 mt-4">
+        By submitting, you agree to our{' '}
+        <a href="https://www.abstraktmg.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400 transition-colors">Privacy Policy</a>
+        {' '}and{' '}
+        <a href="https://www.abstraktmg.com/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400 transition-colors">Terms of Service</a>.
+      </p>
       <style>{`@keyframes stepFadeIn { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }`}</style>
     </div>
   );

@@ -1,4 +1,5 @@
 import './globals.css';
+import Script from 'next/script';
 import CookieBanner from '@/components/CookieBanner';
 
 export const metadata = {
@@ -10,6 +11,21 @@ export const metadata = {
     description: 'Is your business invisible to AI? Find out in minutes.',
     url: 'https://audit.abstraktmg.com',
     siteName: 'Abstrakt Marketing Group',
+    images: [
+      {
+        url: 'https://audit.abstraktmg.com/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Find Out Why Your Competitors Are Beating You in AI Search',
+      },
+    ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AI Visibility Assessment | Abstrakt Marketing Group',
+    description: 'Is your business invisible to AI? Find out in minutes.',
+    images: ['https://audit.abstraktmg.com/og-image.png'],
   },
 };
 
@@ -23,7 +39,7 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap"
           rel="stylesheet"
         />
 
@@ -74,6 +90,10 @@ export default function RootLayout({ children }) {
 
         {/* ── Cookie consent banner ── */}
         <CookieBanner />
+
+        {/* ── Wistia player ── */}
+        <Script src="https://fast.wistia.com/player.js" strategy="afterInteractive" />
+        <Script src="https://fast.wistia.com/embed/m2kgo37bny.js" strategy="afterInteractive" type="module" />
       </body>
     </html>
   );

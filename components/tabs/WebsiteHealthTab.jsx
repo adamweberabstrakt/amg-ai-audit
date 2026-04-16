@@ -13,6 +13,12 @@ export default function WebsiteHealthTab({ auditData }) {
 
   return (
     <div className="space-y-8">
+      {/* Tab identity */}
+      <div className="flex items-center gap-3">
+        <img src="/brand/logomark-white.png" alt="" aria-hidden="true" style={{ height: '28px', width: 'auto', opacity: 0.7 }} />
+        <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-400">Website Health</span>
+      </div>
+
       {/* Why This Matters */}
       <div className="card border-l-4 border-brand-orange">
         <p className="section-label mb-2">Why This Matters</p>

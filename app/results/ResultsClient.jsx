@@ -5,8 +5,10 @@ import { useRouter, useSearchParams }   from 'next/navigation';
 import Image                            from 'next/image';
 import ResultsTabs      from '@/components/ResultsTabs';
 import BookingCTA       from '@/components/BookingCTA';
+import BookingSidebar   from '@/components/BookingSidebar';
 import ThemeToggle      from '@/components/ThemeToggle';
 import ChiliPiperModal  from '@/components/ChiliPiperModal';
+import ShareModal       from '@/components/ShareModal';
 
 export default function ResultsClient() {
   const router       = useRouter();
@@ -15,9 +17,9 @@ export default function ResultsClient() {
 
   const [auditData,     setAuditData]    = useState(null);
   const [leadData,      setLeadData]     = useState(null);
-  const [shareUrl,      setShareUrl]     = useState('');
-  const [shareCopied,   setShareCopied]  = useState(false);
-  const [shareLoading,  setShareLoading] = useState(false);
+  const [shareUrl,       setShareUrl]      = useState('');
+  const [shareLoading,   setShareLoading]  = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [schedulerOpen, setSchedulerOpen] = useState(false);
   const hasShownAutoPopup = useRef(false);
   const popupTimer        = useRef(null);
@@ -53,17 +55,13 @@ export default function ResultsClient() {
     popupTimer.current = setTimeout(() => {
       setSchedulerOpen(true);
       hasShownAutoPopup.current = true;
-    }, 45000);
+    }, 5000);
     return () => clearTimeout(popupTimer.current);
   }, [auditData]);
 
   async function handleShare() {
-    if (shareUrl) {
-      await navigator.clipboard.writeText(shareUrl);
-      setShareCopied(true);
-      setTimeout(() => setShareCopied(false), 2500);
-      return;
-    }
+    // If we already have a URL just open the modal
+    if (shareUrl) { setShareModalOpen(true); return; }
     setShareLoading(true);
     try {
       const res    = await fetch('/api/share', {
@@ -74,9 +72,7 @@ export default function ResultsClient() {
       const { id } = await res.json();
       const url    = `${window.location.origin}/results?id=${id}`;
       setShareUrl(url);
-      await navigator.clipboard.writeText(url);
-      setShareCopied(true);
-      setTimeout(() => setShareCopied(false), 2500);
+      setShareModalOpen(true);
     } catch { alert('Could not generate share link. Please try again.'); }
     finally  { setShareLoading(false); }
   }
@@ -97,8 +93,8 @@ export default function ResultsClient() {
       <header className="border-b border-white/10 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <a href="/">
-            {/* Dark mode: orange logo */}
-            <Image src="/logo-orange.png" alt="Abstrakt" width={140} height={40}
+            {/* Dark mode: white logo */}
+            <Image src="/brand/logo-white.svg" alt="Abstrakt" width={140} height={40}
               className="dark-logo" style={{ objectFit: 'contain' }} priority />
             {/* Light mode: dark logo */}
             <Image src="/logo-dark.png" alt="Abstrakt" width={140} height={40}
@@ -108,10 +104,13 @@ export default function ResultsClient() {
             <button
               onClick={handleShare}
               disabled={shareLoading}
-              title="Generates a link valid for ~7 days"
+              title="Share your results with your team"
               className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/30 disabled:opacity-50"
             >
-              {shareCopied ? '✓ Link Copied!' : shareLoading ? 'Generating…' : '🔗 Share Results'}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              {shareLoading ? 'Generating…' : 'Share Results'}
             </button>
             <ThemeToggle />
           </div>
@@ -140,16 +139,37 @@ export default function ResultsClient() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <ResultsTabs auditData={auditData} onBook={() => setSchedulerOpen(true)} />
+      {/* Tabs + Booking Sidebar */}
+      <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col lg:flex-row gap-8 items-start">
+        <div className="flex-1 min-w-0 w-full">
+          <ResultsTabs auditData={auditData} onBook={() => setSchedulerOpen(true)} />
+        </div>
+        <BookingSidebar />
       </div>
 
-      {/* Booking CTA — always show (leadData is available in both direct and shared views) */}
+      {/* Grow Zone link */}
+      <div className="max-w-7xl mx-auto px-6 pb-6">
+        <div className="flex items-center justify-center gap-3 py-4 border-t border-white/10">
+          <p className="text-sm text-gray-500">Want deeper resources on AI visibility and SEO?</p>
+          <a
+            href="https://www.abstraktmg.com/grow-zone/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-sm font-heading font-semibold text-brand-orange hover:text-orange-400 transition-colors"
+          >
+            Explore the Grow Zone →
+          </a>
+        </div>
+      </div>
+
+      {/* Booking CTA — always show */}
       <BookingCTA score={score} leadData={leadData} onOpen={() => setSchedulerOpen(true)} />
 
       {/* ChiliPiper scheduling modal */}
       <ChiliPiperModal isOpen={schedulerOpen} onClose={() => setSchedulerOpen(false)} />
+
+      {/* Share results modal */}
+      <ShareModal isOpen={shareModalOpen} onClose={() => setShareModalOpen(false)} shareUrl={shareUrl} />
     </div>
   );
 }
