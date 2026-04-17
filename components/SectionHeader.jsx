@@ -36,7 +36,7 @@ export default function SectionHeader() {
       {/* Separator + tagline */}
       <span className="text-gray-400 font-heading text-sm">·</span>
       <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-400">
-        AI Search Radar
+        AI Search Assessment Results
       </span>
     </div>
   );

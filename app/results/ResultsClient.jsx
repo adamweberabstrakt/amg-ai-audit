@@ -93,13 +93,17 @@ export default function ResultsClient() {
       {/* Header */}
       <header className="border-b border-white/10 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <a href="/">
+          <a href="/" className="flex items-center gap-3">
             {/* Dark mode: white logo */}
-            <Image src="/brand/logo-white.svg" alt="Abstrakt" width={140} height={40}
-              className="dark-logo" style={{ objectFit: 'contain' }} priority />
-            {/* Light mode: dark logo */}
-            <Image src="/logo-dark.png" alt="Abstrakt" width={140} height={40}
-              className="light-logo" style={{ objectFit: 'contain' }} priority />
+            <Image src="/brand/logo-white.png" alt="Abstrakt" width={140} height={40}
+              className="dark-logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} priority />
+            {/* Light mode: gray logo */}
+            <Image src="/brand/logo-gray.png" alt="Abstrakt" width={140} height={40}
+              className="light-logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} priority />
+            <span className="text-gray-400">·</span>
+            <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-300">
+              AI Search Radar
+            </span>
           </a>
           <div className="flex items-center gap-3">
             <button

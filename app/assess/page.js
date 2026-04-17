@@ -13,11 +13,14 @@ export default function AssessPage() {
       {/* Minimal header */}
       <header className="border-b border-white/10 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <img src="/logo-orange.png" alt="Abstrakt Marketing Group" height="36" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} className="dark-logo" />
-            <img src="/logo-dark.png"   alt="Abstrakt Marketing Group" height="36" style={{ height: '36px', width: 'auto', objectFit: 'contain', display: 'none' }} className="light-logo" />
+          <Link href="/" className="flex items-center gap-3">
+            <img src="/brand/logo-white.png" alt="Abstrakt Marketing Group" className="dark-logo"  style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+            <img src="/brand/logo-gray.png"  alt="Abstrakt Marketing Group" className="light-logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+            <span className="text-gray-400">·</span>
+            <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-300">
+              AI Search Radar
+            </span>
           </Link>
-          <p className="text-sm text-gray-400 hidden sm:block">AI Visibility Assessment</p>
         </div>
       </header>
  
