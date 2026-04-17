@@ -64,7 +64,7 @@ function Hero() {
               Find Out Why Your<br />
               Competitors Are{' '}
               <span className="relative inline-block">
-                <span className="text-brand-orange">Beating You</span>
+                <span className="text-white">Beating You</span>
                 <span className="absolute -bottom-1 left-0 right-0 h-[3px] bg-brand-orange/40 rounded" />
               </span>
               {' '}in AI Search
@@ -101,7 +101,7 @@ function Hero() {
           </div>
 
           {/* Wistia video */}
-          <div className="lg:flex-shrink-0 lg:w-[480px] w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(232,93,4,0.08)]">
+          <div className="lg:flex-shrink-0 lg:w-[480px] w-full max-w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(232,93,4,0.08)]">
             <style>{`wistia-player[media-id='m2kgo37bny']:not(:defined){background:center/contain no-repeat url('https://fast.wistia.com/embed/medias/m2kgo37bny/swatch');display:block;filter:blur(5px);padding-top:56.25%}`}</style>
             {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
             <wistia-player media-id="m2kgo37bny" aspect="1.7777777777777777"></wistia-player>
@@ -354,7 +354,7 @@ function WhatYouGet() {
           <p className="section-label mb-4">Your Free Assessment Includes</p>
           <h2 className="font-heading text-4xl md:text-5xl font-bold mb-5 leading-tight">
             A Complete Picture of{' '}
-            <span className="text-brand-orange">Your Competitive Position</span>
+            <span className="text-white">Your Competitive Position</span>
           </h2>
           <p className="text-gray-500 max-w-xl mx-auto leading-relaxed">
             In under 2 minutes, you'll see exactly how you stack up against competitors in AI search — and what to do about it.
@@ -453,7 +453,7 @@ function FinalCTA() {
         <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
           Find Out Why Competitors Are Ahead —
           <br />
-          <span className="text-brand-orange">Then Take That Spot Back</span>
+          <span className="text-white">Then Take That Spot Back</span>
         </h2>
         <p className="text-gray-400 text-lg mb-12 leading-relaxed max-w-xl mx-auto">
           Your free AI Visibility Assessment takes 2 minutes. Get your score, see your competitor gaps, and walk away with a clear action plan.

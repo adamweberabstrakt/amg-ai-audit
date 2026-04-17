@@ -55,7 +55,7 @@ export default function ChiliPiperModal({ isOpen, onClose }) {
         </div>
 
         {/* Iframe */}
-        <div style={{ height: '520px' }}>
+        <div style={{ height: 'clamp(460px, 70vh, 620px)' }}>
           <iframe
             src={CHILIPIPER_URL}
             title="Schedule a Meeting"

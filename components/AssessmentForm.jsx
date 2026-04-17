@@ -36,6 +36,7 @@ const BUDGET_RANGES = [
 
 const BRAND_LABELS = ['Just starting','Early stage','Growing','Established','Market leader'];
 const AI_TOOLS = ['ChatGPT','Perplexity','Google AI Overview','Not sure'];
+const VIDEO_CHANNELS = ['TV', 'YouTube', 'Social (TikTok/Reels)', 'Online video ads', 'Sales videos'];
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function AssessmentForm() {
@@ -52,7 +53,10 @@ export default function AssessmentForm() {
   const [formData, setFormData] = useState({
     firstName:'', lastName:'', email:'', phone:'', company:'', website:'',
     industry:'', goal:'', budgetRange:'', runningPaidAds:'',
-    brandRating:3, hasSocialMedia:'', competitor1:'', competitor2:'',
+    brandRating:3, hasSocialMedia:'', 
+    competitors: ['', '', '', ''], // Support up to 4 competitors
+    usesVideo: '', // Yes/No for video marketing
+    videoChannels: [], // Array of selected video channels
     aiToolsUsed:[], requestReviewCall:true,
   });
 
@@ -78,6 +82,33 @@ export default function AssessmentForm() {
       aiToolsUsed: prev.aiToolsUsed.includes(tool)
         ? prev.aiToolsUsed.filter((t) => t !== tool)
         : [...prev.aiToolsUsed, tool],
+    }));
+  }
+
+  function updateCompetitor(index, value) {
+    setFormData((prev) => ({
+      ...prev,
+      competitors: prev.competitors.map((comp, i) => i === index ? value : comp),
+    }));
+  }
+
+  function addCompetitor() {
+    const visibleCount = formData.competitors.filter(Boolean).length;
+    if (visibleCount < 4) {
+      // Find first empty slot
+      const emptyIndex = formData.competitors.findIndex(comp => !comp);
+      if (emptyIndex !== -1) {
+        // Focus will be added automatically when the input appears
+      }
+    }
+  }
+
+  function toggleVideoChannel(channel) {
+    setFormData((prev) => ({
+      ...prev,
+      videoChannels: prev.videoChannels.includes(channel)
+        ? prev.videoChannels.filter((c) => c !== channel)
+        : [...prev.videoChannels, channel],
     }));
   }
 
@@ -116,7 +147,20 @@ export default function AssessmentForm() {
     setIsLoading(true);
     const shareId    = crypto.randomUUID();
     const resultsUrl = `${window.location.origin}/results?id=${shareId}`;
-    const payload    = { ...formData, ...utmParams, resultsUrl, _hp: honeypotRef.current?.value ?? '', _t: formOpenTime };
+    
+    // Build payload with backward compatibility for competitors
+    const payload = { 
+      ...formData, 
+      ...utmParams, 
+      resultsUrl, 
+      _hp: honeypotRef.current?.value ?? '', 
+      _t: formOpenTime,
+      // Backward compatibility: populate old competitor1/competitor2 fields
+      competitor1: formData.competitors[0] || '',
+      competitor2: formData.competitors[1] || '',
+      // New format: competitors array (for new backend)
+      competitors: formData.competitors,
+    };
 
     try {
       fetch('/api/webhook', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) }).catch(()=>{});
@@ -152,7 +196,9 @@ export default function AssessmentForm() {
         <div style={{ animation: 'stepFadeIn 0.3s ease-out' }}>
           {step === 1 && <Step1 formData={formData} update={update} errors={errors} />}
           {step === 2 && <Step2 formData={formData} update={update} errors={errors} />}
-          {step === 3 && <Step3 formData={formData} update={update} toggleAITool={toggleAITool} />}
+          {step === 3 && <Step3 formData={formData} update={update} toggleAITool={toggleAITool} 
+                                 updateCompetitor={updateCompetitor} addCompetitor={addCompetitor} 
+                                 toggleVideoChannel={toggleVideoChannel} />}
         </div>
 
         <div className="flex justify-between mt-8">
@@ -311,8 +357,11 @@ function Step2({ formData, update, errors }) {
 }
 
 // ─── Step 3: Brand Maturity ───────────────────────────────────────────────────
-function Step3({ formData, update, toggleAITool }) {
+function Step3({ formData, update, toggleAITool, updateCompetitor, addCompetitor, toggleVideoChannel }) {
   const pct = ((formData.brandRating - 1) / 4) * 100;
+  const visibleCompetitors = formData.competitors.filter((comp, i) => comp || i < 2); // Always show first 2
+  const canAddMore = visibleCompetitors.length < 4 && formData.competitors.filter(Boolean).length < 4;
+  
   return (
     <div>
       <p className="section-label mb-2">Step 3 of 3</p>
@@ -354,15 +403,47 @@ function Step3({ formData, update, toggleAITool }) {
         </div>
       </Field>
 
+      <Field label="Do you use video marketing?">
+        <div className="flex gap-3 mt-1">
+          {['Yes','No'].map((v) => (
+            <IconSelectBtn key={v} label={v} selected={formData.usesVideo === v}
+              onClick={() => update('usesVideo', v)} />
+          ))}
+        </div>
+      </Field>
+
+      {formData.usesVideo === 'Yes' && (
+        <Field label="Which video channels do you use? (select all that apply)">
+          <div className="grid grid-cols-2 gap-3 mt-1">
+            {VIDEO_CHANNELS.map((channel) => (
+              <IconSelectBtn key={channel} label={channel} selected={formData.videoChannels.includes(channel)}
+                onClick={() => toggleVideoChannel(channel)} multi />
+            ))}
+          </div>
+        </Field>
+      )}
+
       <Field label="Top competitor URLs (optional)">
-        <IconField icon={<GlobeIcon />}>
-          <input type="url" value={formData.competitor1} onChange={(e) => update('competitor1', e.target.value)}
-            placeholder="https://competitor.com" className="mb-3" />
-        </IconField>
-        <IconField icon={<GlobeIcon />}>
-          <input type="url" value={formData.competitor2} onChange={(e) => update('competitor2', e.target.value)}
-            placeholder="https://competitor2.com" />
-        </IconField>
+        {visibleCompetitors.map((_, index) => (
+          <IconField key={index} icon={<GlobeIcon />}>
+            <input 
+              type="url" 
+              value={formData.competitors[index]} 
+              onChange={(e) => updateCompetitor(index, e.target.value)}
+              placeholder={`https://competitor${index + 1}.com`} 
+              className={index < visibleCompetitors.length - 1 ? "mb-3" : ""} 
+            />
+          </IconField>
+        ))}
+        {canAddMore && (
+          <button 
+            type="button" 
+            onClick={addCompetitor}
+            className="text-sm text-brand-orange hover:text-orange-400 transition-colors font-medium"
+          >
+            + Add competitor
+          </button>
+        )}
       </Field>
 
       <Field label="Which AI tools do your customers use? (select all that apply)">

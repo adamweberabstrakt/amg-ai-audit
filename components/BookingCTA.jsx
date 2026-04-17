@@ -39,14 +39,14 @@ export default function BookingCTA({ score, onOpen }) {
           </div>
 
           <p className="text-gray-400 text-sm hidden lg:block flex-1 text-center">
-            Book a free strategy call — we'll walk through your competitor gaps and build you an action plan.
+            See exactly how to outrank your competitors in AI search — in 30 minutes, free.
           </p>
 
           <button
             onClick={onOpen}
             className="btn-primary flex-shrink-0 shadow-[0_0_24px_rgba(232,93,4,0.3)]"
           >
-            Book My Free Assessment Call →
+            Close the Gap — Talk to a Strategist
           </button>
         </div>
       </div>
@@ -61,7 +61,7 @@ export default function BookingCTA({ score, onOpen }) {
         </div>
         <button onClick={onOpen}
           className={`btn-primary text-sm py-3 px-5 flex-shrink-0 transition-all duration-300 ${pulsing ? 'shadow-[0_0_20px_rgba(232,93,4,0.5)]' : ''}`}>
-          Book Free Call →
+          Close the Gap
         </button>
       </div>
 

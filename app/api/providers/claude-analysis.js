@@ -11,8 +11,9 @@ export async function runClaudeAnalysis({
   goal,
   budgetRange,
   brandRating,
-  competitor1,
-  competitor2,
+  competitors,
+  usesVideo,
+  videoChannels,
   pageSpeedScore,
   crawlData,
   placesData,
@@ -22,7 +23,7 @@ export async function runClaudeAnalysis({
 
   const prompt = buildPrompt({
     company, website, industry, goal, budgetRange, brandRating,
-    competitor1, competitor2, pageSpeedScore, crawlData, placesData, semrushData,
+    competitors, usesVideo, videoChannels, pageSpeedScore, crawlData, placesData, semrushData,
   });
 
   const message = await client.messages.create({
@@ -45,7 +46,7 @@ export async function runClaudeAnalysis({
 // ─── Prompt ───────────────────────────────────────────────────────────────────
 function buildPrompt({
   company, website, industry, goal, budgetRange, brandRating,
-  competitor1, competitor2, pageSpeedScore, crawlData, placesData, semrushData,
+  competitors, usesVideo, videoChannels, pageSpeedScore, crawlData, placesData, semrushData,
 }) {
   const semrushBlock = semrushData
     ? buildSemrushBlock(semrushData, company)
@@ -60,6 +61,7 @@ BUSINESS INFO:
 - Primary goal: ${goal ?? 'Not specified'}
 - Marketing budget: ${budgetRange ?? 'Not specified'}
 - Brand maturity self-rating: ${brandRating}/5
+- Uses video marketing: ${usesVideo ?? 'Not specified'}${usesVideo === 'Yes' && videoChannels?.length ? ` (${videoChannels.join(', ')})` : ''}
 
 TECHNICAL DATA:
 - PageSpeed score (mobile): ${pageSpeedScore ?? 'Not available'}/100
@@ -72,7 +74,7 @@ TECHNICAL DATA:
 - Images with alt text: ${crawlData?.imagesWithAlt ?? 'Unknown'} of ${crawlData?.imageCount ?? 'Unknown'}
 - Google Business Profile found: ${placesData?.found ?? false}
 - GBP rating: ${placesData?.rating ?? 'N/A'} (${placesData?.reviewCount ?? 0} reviews)
-- Competitors provided: ${[competitor1, competitor2].filter(Boolean).join(', ') || 'None'}
+- Competitors analyzed: ${Array.isArray(competitors) ? competitors.filter(Boolean).join(', ') || 'None' : 'None'}
 
 COMPETITOR & SEARCH DATA (SEMRush):
 ${semrushBlock}
@@ -88,7 +90,7 @@ Return ONLY a valid JSON object with this exact structure, no preamble, no markd
     "localPresence":    <number 0-100, based on GBP completeness and review count>
   },
   "visibilitySummary": "<2-3 sentence explanation for a business owner — what this score means and how AI tools see their brand vs. competitors>",
-  "brandGapAnalysis": "<3-4 paragraph analysis for a marketing manager. Reference specific competitor keyword gaps and domain authority differences where available. Explain what competitors are doing better, why it matters for AI discoverability, and what this business needs to close the gap. Be specific to the industry.>",
+  "brandGapAnalysis": "<3-4 paragraph analysis for a marketing manager. Reference specific competitor keyword gaps, domain authority differences, and backlink opportunities where available. When video marketing is indicated, include a paragraph comparing the client's video strategy vs. typical competitors in this industry. Explain what competitors are doing better, why it matters for AI discoverability, and what this business needs to close the gap. Be specific to the industry.>",
   "topRecommendations": [
     "<recommendation 1 — specific, actionable, written for a non-technical marketing manager>",
     "<recommendation 2>",
@@ -101,24 +103,66 @@ Return ONLY a valid JSON object with this exact structure, no preamble, no markd
 function buildSemrushBlock(semrush, company) {
   const lines = [];
 
+  // Client stats
   if (semrush.clientStats) {
     const s = semrush.clientStats;
     lines.push(`${company}: authority score ${s.authorityScore}, ~${s.organicTraffic.toLocaleString()} monthly organic visits, ${s.organicKeywords.toLocaleString()} ranking keywords`);
   }
 
-  ['competitor1', 'competitor2'].forEach((key) => {
-    const c = semrush[key];
-    if (!c) return;
-    if (c.stats) {
-      lines.push(`${c.domain}: authority score ${c.stats.authorityScore}, ~${c.stats.organicTraffic.toLocaleString()} monthly organic visits, ${c.stats.organicKeywords.toLocaleString()} ranking keywords`);
+  // Client referring domains count
+  if (semrush.clientRefDomains?.length) {
+    lines.push(`${company}: ${semrush.clientRefDomains.length} high-authority referring domains`);
+  }
+
+  // Competitor data (up to 4 competitors)
+  if (semrush.competitors?.length) {
+    semrush.competitors.forEach((comp) => {
+      if (!comp.data) return;
+      
+      // Competitor stats
+      if (comp.data.stats) {
+        const s = comp.data.stats;
+        lines.push(`${comp.domain}: authority score ${s.authorityScore}, ~${s.organicTraffic.toLocaleString()} monthly organic visits, ${s.organicKeywords.toLocaleString()} ranking keywords`);
+      }
+      
+      // Competitor keywords  
+      if (comp.data.keywords?.length) {
+        const kws = comp.data.keywords
+          .map((k) => `"${k.keyword}" (pos ${k.position}, ${k.volume.toLocaleString()}/mo, $${k.cpc.toFixed(2)} CPC)`)
+          .join('; ');
+        lines.push(`${comp.domain} top volume keywords: ${kws}`);
+      }
+    });
+  }
+
+  // Backlink gaps
+  if (semrush.backlinksGaps?.length) {
+    const gaps = semrush.backlinksGaps
+      .filter(gap => gap.gapDomains?.length > 0)
+      .map(gap => `${gap.competitorDomain}: ${gap.gapDomains.map(d => `${d.domain} (DA ${d.authorityScore})`).join(', ')}`)
+      .slice(0, 3); // Top 3 competitors with gaps
+    
+    if (gaps.length > 0) {
+      lines.push(`Backlink opportunities (domains linking to competitors but not ${company}): ${gaps.join('; ')}`);
     }
-    if (c.keywords?.length) {
-      const kws = c.keywords
-        .map((k) => `"${k.keyword}" (pos ${k.position}, ${k.volume.toLocaleString()}/mo, $${k.cpc.toFixed(2)} CPC)`)
-        .join('; ');
-      lines.push(`${c.domain} top transactional keywords: ${kws}`);
-    }
-  });
+  }
+
+  // Backward compatibility for old structure
+  if (!semrush.competitors && (semrush.competitor1 || semrush.competitor2)) {
+    ['competitor1', 'competitor2'].forEach((key) => {
+      const c = semrush[key];
+      if (!c) return;
+      if (c.stats) {
+        lines.push(`${c.domain}: authority score ${c.stats.authorityScore}, ~${c.stats.organicTraffic.toLocaleString()} monthly organic visits, ${c.stats.organicKeywords.toLocaleString()} ranking keywords`);
+      }
+      if (c.keywords?.length) {
+        const kws = c.keywords
+          .map((k) => `"${k.keyword}" (pos ${k.position}, ${k.volume.toLocaleString()}/mo, $${k.cpc.toFixed(2)} CPC)`)
+          .join('; ');
+        lines.push(`${c.domain} top transactional keywords: ${kws}`);
+      }
+    });
+  }
 
   return lines.length ? lines.join('\n') : 'Competitor domains not found in SEMRush database.';
 }

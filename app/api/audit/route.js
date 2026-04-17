@@ -58,7 +58,8 @@ export async function POST(req) {
     }
 
     const body = await req.json();
-    const { website, company, industry, goal, budgetRange, brandRating, competitor1, competitor2,
+    const { website, company, industry, goal, budgetRange, brandRating, 
+            competitor1, competitor2, competitors, usesVideo, videoChannels,
             _hp, _t } = body;
 
     // ── Honeypot check (bots fill hidden fields, humans don't) ────────────
@@ -74,8 +75,6 @@ export async function POST(req) {
     // ── Input validation ──────────────────────────────────────────────────
     const cleanWebsite  = stripHtml(website ?? '');
     const cleanCompany  = stripHtml(company ?? '').slice(0, 150);
-    const cleanComp1    = stripHtml(competitor1 ?? '').slice(0, 200);
-    const cleanComp2    = stripHtml(competitor2 ?? '').slice(0, 200);
 
     if (!cleanWebsite || !cleanCompany) {
       return NextResponse.json({ error: 'website and company are required' }, { status: 400 });
@@ -83,22 +82,25 @@ export async function POST(req) {
     if (!isValidUrl(cleanWebsite)) {
       return NextResponse.json({ error: 'Invalid website URL.' }, { status: 400 });
     }
-    if (cleanComp1 && !isValidDomain(cleanComp1)) {
-      return NextResponse.json({ error: 'Invalid competitor 1 URL.' }, { status: 400 });
-    }
-    if (cleanComp2 && !isValidDomain(cleanComp2)) {
-      return NextResponse.json({ error: 'Invalid competitor 2 URL.' }, { status: 400 });
-    }
 
     // Normalize URL
     const url = cleanWebsite.startsWith('http') ? cleanWebsite : `https://${cleanWebsite}`;
+
+    // Handle competitor fields with backward compatibility
+    const competitorList = competitors && Array.isArray(competitors) 
+      ? competitors.filter(Boolean) // Remove empty strings
+      : [competitor1, competitor2].filter(Boolean); // Fallback to old format
+
+    const cleanCompetitors = competitorList
+      .map(comp => stripHtml(comp).slice(0, 200))
+      .filter(comp => comp && isValidDomain(comp));
 
     // ── Run all providers in parallel ───────────────────────────────────────
     const [pageSpeedData, crawlData, placesData, semrushData] = await Promise.allSettled([
       runPageSpeed(url),
       runCrawl(url),
       runPlaces(cleanCompany),
-      runSemrush({ website: url, competitor1: cleanComp1, competitor2: cleanComp2 }),
+      runSemrush({ website: url, competitors: cleanCompetitors }),
     ]);
 
     const ps       = pageSpeedData.status === 'fulfilled'  ? pageSpeedData.value  : null;
@@ -110,14 +112,15 @@ export async function POST(req) {
     let claudeData;
     try {
       claudeData = await runClaudeAnalysis({
-        company:    cleanCompany,
-        website:    url,
+        company:      cleanCompany,
+        website:      url,
         industry,
         goal,
         budgetRange,
         brandRating,
-        competitor1: cleanComp1,
-        competitor2: cleanComp2,
+        competitors:  cleanCompetitors,
+        usesVideo:    stripHtml(usesVideo ?? ''),
+        videoChannels: Array.isArray(videoChannels) ? videoChannels.map(c => stripHtml(c)) : [],
         pageSpeedScore: ps?.score ?? null,
         crawlData:      crawl,
         placesData:     places,
