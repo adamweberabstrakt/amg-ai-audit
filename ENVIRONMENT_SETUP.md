@@ -1,92 +1,53 @@
-# Environment Variables for PDF + Notification Features
+# Environment Variables
 
-## Required Dependencies
+All env vars live in Vercel → Project Settings → Environment Variables.
 
-```bash
-npm install puppeteer@^21.5.2
-```
+## Core audit
 
-## Teams Integration
+| Variable | Purpose |
+|---|---|
+| `ANTHROPIC_API_KEY` | Claude AI analysis of audit data |
+| `GOOGLE_API_KEY` | PageSpeed Insights + Google Places API |
+| `SEMRUSH_API_KEY` | Domain authority + transactional keywords |
 
-Add to your Vercel environment variables:
+## Lead capture
 
-```env
-TEAMS_WEBHOOK_URL=https://outlook.office.com/webhook/YOUR_TEAMS_CHANNEL_WEBHOOK_URL
-```
+| Variable | Purpose |
+|---|---|
+| `ZAPIER_WEBHOOK_URL` | Lead form → Google Sheets via Zapier |
 
-**How to get Teams webhook URL:**
-1. Go to your Teams channel
-2. Click the "..." menu → "Connectors"
-3. Search for "Incoming Webhook" → Configure
-4. Name it "AMG AI Audit Notifications"
-5. Copy the webhook URL
+## User report email (PDF attachment)
 
-## Brevo SMTP Email Integration
+Fires automatically right after the audit completes, delivering the lead's AI Visibility Report PDF to their inbox.
 
-Add to your Vercel environment variables:
+| Variable | Purpose |
+|---|---|
+| `RESEND_API_KEY` | Required. Resend API key for transactional email |
+| `RESEND_FROM_EMAIL` | Optional. Defaults to `assessments@abstraktmg.com` |
 
-```env
-BREVO_SMTP_KEY=your_brevo_api_key_here
-BREVO_FROM_EMAIL=notifications@abstraktmg.com
-BREVO_TO_EMAIL=team@abstraktmg.com
-```
+## Internal team notifications (optional — manual "Notify Team" button)
 
-**How to get Brevo SMTP key:**
-1. Login to Brevo (formerly SendinBlue)
-2. Go to SMTP & API → API Keys
-3. Create a new API key for "AMG AI Audit"
-4. Copy the key
+Wired to the "Notify Team" button on the results page. Safe to leave unset; button just reports no channels configured.
 
-## Optional Status Indicators (for UI)
+| Variable | Purpose |
+|---|---|
+| `TEAMS_WEBHOOK_URL` | Teams channel incoming webhook |
+| `BREVO_SMTP_KEY` | Brevo API key for internal email notifications |
+| `BREVO_FROM_EMAIL` | Defaults to `notifications@abstraktmg.com` |
+| `BREVO_TO_EMAIL` | Defaults to `team@abstraktmg.com` |
 
-These help the ReportActions component show channel availability:
+## Booking + analytics
 
-```env
-NEXT_PUBLIC_TEAMS_AVAILABLE=true
-NEXT_PUBLIC_BREVO_AVAILABLE=true
-```
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_CHILIPIPER_SUBDOMAIN` | ChiliPiper iframe subdomain |
+| `NEXT_PUBLIC_CHILIPIPER_ROUTER` | ChiliPiper router name |
+| `NEXT_PUBLIC_GTM_ID` | Google Tag Manager container (Meta Pixel + LinkedIn Insight Tag live inside GTM) |
 
-## Testing the Features
+## Feature flows
 
-**PDF Generation:**
-- Visit any audit results page
-- Click "Download PDF Report" in the Report Actions section
-- Professional PDF with company branding will download
+**PDF download (manual button on results page):** `ReportActions.jsx` → `POST /api/pdf` → generates PDF via PDFKit and streams back as attachment.
 
-**Team Notifications:**
-- Click "Notify Team" button
-- Sends formatted message to both Teams and email
-- Shows status of each channel (success/failed)
+**User report email (auto after audit):** `AssessmentForm.jsx` → `POST /api/report` → generates PDF via PDFKit and emails via Resend.
 
-**Notification Types:**
-- `audit_completed` - Sent when user completes an audit
-- `form_submission` - Sent when user submits the initial form
-
-## Error Handling
-
-Both features gracefully fail if environment variables are missing:
-- PDF: Shows error message, user can try again
-- Notifications: Shows which channels failed and why
-- Missing env vars are logged in the UI for debugging
-
-## Security Notes
-
-- Teams webhook URL is safe to expose (it's channel-specific)
-- Brevo API key should be kept secret (use Vercel environment variables)
-- PDF generation runs server-side only (no client exposure)
-
-## Vercel Configuration
-
-For Puppeteer to work on Vercel, add to your `vercel.json`:
-
-```json
-{
-  "functions": {
-    "app/api/pdf/route.js": {
-      "maxDuration": 30
-    }
-  }
-}
-```
-
-This gives the PDF generation enough time to render complex reports.
+Both routes share `lib/generatePdf.js` so PDF output stays consistent.

@@ -167,6 +167,8 @@ export default function AssessmentForm() {
       const res = await fetch('/api/audit', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
       const auditData = await res.json();
       if (!res.ok) throw new Error(auditData.error || 'Audit failed');
+      // Fire the user's report email with PDF attached — fire-and-forget, don't block redirect
+      fetch('/api/report', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ leadData:payload, auditData }) }).catch(()=>{});
       try {
         await fetch('/api/share', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id:shareId, auditData, leadData:payload }) });
       } catch {
