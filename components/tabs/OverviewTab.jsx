@@ -1,6 +1,7 @@
 'use client';
 
 import SectionHeader from '@/components/SectionHeader';
+import { computeCompetitivePositions } from '@/lib/competitiveScore';
 
 // Tab 0: Overview
 // Executive dashboard — one glance shows the full picture.
@@ -70,25 +71,32 @@ export default function OverviewTab({ auditData, onBook }) {
         </div>
       </div>
 
-      {/* Competitor comparison — new design with DA bars + backlink gaps */}
+      {/* Competitor comparison — Competitive Position Scoreboard + detail panels */}
       {(hasCompetitors || (semrush?.competitors?.length > 0)) && (
         <div className="space-y-6">
           <h3 className="font-heading text-xl font-semibold mb-5">Competitive Intelligence</h3>
-          
-          {/* Domain Authority comparison bars */}
-          <DomainAuthorityCompare 
-            clientStats={semrush?.clientStats} 
-            competitors={semrush?.competitors || []} 
+
+          {/* Scoreboard: one row per competitor with ahead/even/behind verdict */}
+          <CompetitivePositionScoreboard
+            clientStats={semrush?.clientStats}
+            competitors={semrush?.competitors || []}
             company={company}
           />
-          
+
+          {/* Domain Authority comparison bars */}
+          <DomainAuthorityCompare
+            clientStats={semrush?.clientStats}
+            competitors={semrush?.competitors || []}
+            company={company}
+          />
+
           {/* Backlink gaps */}
           {semrush?.backlinksGaps?.length > 0 && (
             <BacklinkGapsPanel gaps={semrush.backlinksGaps} />
           )}
-          
+
           {/* Keyword comparison grid */}
-          <KeywordComparisonGrid 
+          <KeywordComparisonGrid
             clientStats={semrush?.clientStats}
             competitors={semrush?.competitors || []}
             company={company}
@@ -254,7 +262,7 @@ function DomainAuthorityCompare({ clientStats, competitors, company }) {
   if (!clientStats && (!competitors || competitors.length === 0)) return null;
 
   const domains = [];
-  
+
   // Add client domain
   if (clientStats) {
     domains.push({
@@ -262,10 +270,11 @@ function DomainAuthorityCompare({ clientStats, competitors, company }) {
       domain: clientStats.domain || company,
       authorityScore: clientStats.authorityScore || 0,
       isClient: true,
+      hasData: true,
     });
   }
-  
-  // Add competitor domains
+
+  // Add competitor domains — include ones without stats so the user sees them
   competitors?.forEach(comp => {
     if (comp.data?.stats) {
       domains.push({
@@ -273,23 +282,40 @@ function DomainAuthorityCompare({ clientStats, competitors, company }) {
         domain: comp.domain,
         authorityScore: comp.data.stats.authorityScore || 0,
         isClient: false,
+        hasData: true,
+      });
+    } else {
+      domains.push({
+        name: comp.domain,
+        domain: comp.domain,
+        authorityScore: 0,
+        isClient: false,
+        hasData: false,
       });
     }
   });
-  
+
   if (domains.length === 0) return null;
 
-  const maxScore = Math.max(...domains.map(d => d.authorityScore), 100);
-  
+  const maxScore = Math.max(...domains.filter(d => d.hasData).map(d => d.authorityScore), 100);
+
   return (
     <div className="card">
       <p className="section-label mb-3">Domain Authority Comparison</p>
       <div className="space-y-3">
         {domains.map((domain, index) => {
+          if (!domain.hasData) {
+            return (
+              <div key={index} className="flex items-center justify-between text-sm py-2 border-b border-white/5 last:border-b-0">
+                <span className="text-gray-300">{domain.name}</span>
+                <span className="text-xs text-gray-500 italic">No SEMRush data available</span>
+              </div>
+            );
+          }
           const percentage = maxScore > 0 ? (domain.authorityScore / maxScore) * 100 : 0;
-          const isLeading = domain.isClient && domains.some(d => !d.isClient && d.authorityScore > domain.authorityScore);
-          const isBehind = domain.isClient && domains.some(d => !d.isClient && d.authorityScore < domain.authorityScore);
-          
+          const isBehind = domain.isClient && domains.some(d => !d.isClient && d.hasData && d.authorityScore > domain.authorityScore);
+          const isLeading = domain.isClient && domains.some(d => !d.isClient && d.hasData && d.authorityScore < domain.authorityScore);
+
           return (
             <div key={index} className="space-y-1">
               <div className="flex justify-between items-center text-sm">
@@ -297,8 +323,8 @@ function DomainAuthorityCompare({ clientStats, competitors, company }) {
                   {domain.name} {domain.isClient && '(You)'}
                 </span>
                 <span className={`font-heading font-bold ${
-                  domain.authorityScore >= 70 ? 'text-green-400' 
-                  : domain.authorityScore >= 40 ? 'text-yellow-400' 
+                  domain.authorityScore >= 70 ? 'text-green-400'
+                  : domain.authorityScore >= 40 ? 'text-yellow-400'
                   : 'text-red-400'
                 }`}>
                   {domain.authorityScore}
@@ -308,16 +334,16 @@ function DomainAuthorityCompare({ clientStats, competitors, company }) {
                 <div className="h-3 bg-white/10 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-700 ${
-                      domain.isClient 
+                      domain.isClient
                         ? isLeading ? 'bg-green-500' : isBehind ? 'bg-red-500' : 'bg-brand-orange'
                         : 'bg-blue-500'
                     }`}
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
-                {domain.isClient && isLeading && (
+                {domain.isClient && isBehind && (
                   <div className="absolute -top-1 -right-1 text-xs bg-red-600 text-white px-1.5 py-0.5 rounded">
-                    Behind by {Math.max(...domains.filter(d => !d.isClient).map(d => d.authorityScore)) - domain.authorityScore}
+                    Behind by {Math.max(...domains.filter(d => !d.isClient && d.hasData).map(d => d.authorityScore)) - domain.authorityScore}
                   </div>
                 )}
               </div>
@@ -363,7 +389,7 @@ function BacklinkGapsPanel({ gaps }) {
 // ─── Keyword Comparison Grid ──────────────────────────────────────────────────
 function KeywordComparisonGrid({ clientStats, competitors, company }) {
   const domains = [];
-  
+
   // Add client (if has keywords - need to fetch separately)
   if (clientStats) {
     domains.push({
@@ -373,7 +399,7 @@ function KeywordComparisonGrid({ clientStats, competitors, company }) {
       isClient: true,
     });
   }
-  
+
   // Add competitors with keywords
   competitors?.forEach(comp => {
     if (comp.data?.keywords?.length > 0) {
@@ -385,9 +411,13 @@ function KeywordComparisonGrid({ clientStats, competitors, company }) {
       });
     }
   });
-  
-  if (domains.filter(d => d.keywords.length > 0).length === 0) return null;
-  
+
+  const hasAny = domains.filter(d => d.keywords.length > 0).length > 0;
+
+  // If no competitors have keyword data, don't render — the empty-state note
+  // in the Scoreboard already explains why
+  if (!hasAny) return null;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -400,5 +430,88 @@ function KeywordComparisonGrid({ clientStats, competitors, company }) {
         ))}
       </div>
     </div>
+  );
+}
+
+// ─── Competitive Position Scoreboard ──────────────────────────────────────────
+// One row per competitor with a rolled-up ahead/even/behind verdict.
+// Powered by lib/competitiveScore.js.
+function CompetitivePositionScoreboard({ clientStats, competitors, company }) {
+  if (!competitors || competitors.length === 0) return null;
+
+  const positions = computeCompetitivePositions({ clientStats, competitors, company });
+  if (positions.length === 0) return null;
+
+  return (
+    <div className="card">
+      <p className="section-label mb-1">Competitive Position Score</p>
+      <p className="text-xs text-gray-400 mb-4">
+        Rolled up from domain authority, organic keywords, and traffic relative to each competitor.
+      </p>
+      <div className="space-y-2">
+        {positions.map((pos, i) => (
+          <PositionRow key={i} position={pos} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PositionRow({ position }) {
+  // Empty-data states — make the "why" visible to the user
+  if (position.verdict === 'no-data' || position.verdict === 'no-client-data') {
+    return (
+      <div className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-b-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-2 h-2 rounded-full bg-gray-500 flex-shrink-0" />
+          <span className="text-sm text-gray-300 truncate">{position.domain}</span>
+        </div>
+        <span className="text-xs text-gray-500 italic ml-3 text-right">{position.message}</span>
+      </div>
+    );
+  }
+
+  const verdictMap = {
+    ahead:  { label: "You're ahead",   cls: 'bg-green-500/20 text-green-300',  dot: '#22c55e', scoreColor: 'text-green-400' },
+    even:   { label: 'Roughly even',   cls: 'bg-yellow-500/20 text-yellow-300', dot: '#eab308', scoreColor: 'text-yellow-400' },
+    behind: { label: "They're ahead",  cls: 'bg-red-500/20 text-red-300',       dot: '#ef4444', scoreColor: 'text-red-400' },
+  };
+  const v = verdictMap[position.verdict] ?? verdictMap.even;
+
+  return (
+    <div className="py-3 border-b border-white/5 last:border-b-0">
+      <div className="flex items-center justify-between gap-3 mb-2">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: v.dot }} />
+          <span className="text-sm font-medium text-white truncate">{position.domain}</span>
+        </div>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <span className={`text-xs px-2 py-0.5 rounded uppercase tracking-wide font-heading ${v.cls}`}>
+            {v.label}
+          </span>
+          <span className={`font-heading text-2xl font-bold leading-none ${v.scoreColor}`}>
+            {position.score}
+          </span>
+        </div>
+      </div>
+      <div className="flex gap-4 text-xs text-gray-400 pl-5 flex-wrap">
+        <GapStat label="DA"       clientVal={position.clientStats.authorityScore}   compVal={position.competitorStats.authorityScore}   />
+        <GapStat label="Keywords" clientVal={position.clientStats.organicKeywords}  compVal={position.competitorStats.organicKeywords}  />
+        <GapStat label="Traffic"  clientVal={position.clientStats.organicTraffic}   compVal={position.competitorStats.organicTraffic}   />
+      </div>
+    </div>
+  );
+}
+
+function GapStat({ label, clientVal, compVal }) {
+  const diff = (compVal || 0) - (clientVal || 0);
+  const tone = diff > 0 ? 'text-red-400' : diff < 0 ? 'text-green-400' : 'text-gray-500';
+  const sign = diff > 0 ? '+' : '';
+  return (
+    <span>
+      <span className="text-gray-500">{label}:</span>{' '}
+      <span className="text-gray-300">{(compVal || 0).toLocaleString()}</span>{' '}
+      <span className={tone}>({sign}{diff.toLocaleString()})</span>
+    </span>
   );
 }

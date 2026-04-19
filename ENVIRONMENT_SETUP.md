@@ -9,6 +9,7 @@ All env vars live in Vercel → Project Settings → Environment Variables.
 | `ANTHROPIC_API_KEY` | Claude AI analysis of audit data |
 | `GOOGLE_API_KEY` | PageSpeed Insights + Google Places API |
 | `SEMRUSH_API_KEY` | Domain authority + transactional keywords |
+| `GTMETRIX_API_KEY` | GTMetrix load-time testing (Basic auth — key is the username, no password). Optional: if unset, the GTMetrix section of the Website Health tab is hidden and health score weights reallocate automatically. |
 
 ## Lead capture
 

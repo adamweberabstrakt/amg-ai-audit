@@ -18,12 +18,13 @@ export async function runClaudeAnalysis({
   crawlData,
   placesData,
   semrushData,
+  gtmetrixData,
 }) {
   const client = new Anthropic();
 
   const prompt = buildPrompt({
     company, website, industry, goal, budgetRange, brandRating,
-    competitors, usesVideo, videoChannels, pageSpeedScore, crawlData, placesData, semrushData,
+    competitors, usesVideo, videoChannels, pageSpeedScore, crawlData, placesData, semrushData, gtmetrixData,
   });
 
   const message = await client.messages.create({
@@ -46,11 +47,15 @@ export async function runClaudeAnalysis({
 // ─── Prompt ───────────────────────────────────────────────────────────────────
 function buildPrompt({
   company, website, industry, goal, budgetRange, brandRating,
-  competitors, usesVideo, videoChannels, pageSpeedScore, crawlData, placesData, semrushData,
+  competitors, usesVideo, videoChannels, pageSpeedScore, crawlData, placesData, semrushData, gtmetrixData,
 }) {
   const semrushBlock = semrushData
     ? buildSemrushBlock(semrushData, company)
     : 'SEMRush data not available.';
+
+  const gtmetrixBlock = gtmetrixData
+    ? `GTMetrix grade: ${gtmetrixData.grade ?? 'N/A'}, performance score: ${gtmetrixData.performanceScore ?? 'N/A'}/100, structure score: ${gtmetrixData.structureScore ?? 'N/A'}/100, fully loaded: ${gtmetrixData.fullyLoadedTime ?? 'N/A'}, LCP: ${gtmetrixData.lcp ?? 'N/A'}, CLS: ${gtmetrixData.cls ?? 'N/A'}`
+    : 'GTMetrix data not available.';
 
   return `You are a senior digital marketing analyst at Abstrakt Marketing Group reviewing a business's AI visibility and competitive position in search.
 
@@ -65,6 +70,7 @@ BUSINESS INFO:
 
 TECHNICAL DATA:
 - PageSpeed score (mobile): ${pageSpeedScore ?? 'Not available'}/100
+- ${gtmetrixBlock}
 - Has page title: ${crawlData?.hasTitle ?? 'Unknown'}
 - Has meta description: ${crawlData?.hasMetaDesc ?? 'Unknown'}
 - Has H1 tag: ${crawlData?.hasH1 ?? 'Unknown'}

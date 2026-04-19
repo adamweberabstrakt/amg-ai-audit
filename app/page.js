@@ -91,15 +91,19 @@ function Hero() {
             </div>
 
             {/* Trust stats row */}
-            <div className="flex flex-wrap gap-6 mt-8 pt-8 border-t border-white/10">
+            <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-10 pt-8 border-t border-white/10">
               {[
-                { num: '2,000+', label: 'Active clients' },
-                { num: '500+',   label: 'Websites built' },
-                { num: '$1B+',   label: 'Revenue generated' },
-              ].map((s) => (
-                <div key={s.num} className="flex items-baseline gap-2">
-                  <span className="font-heading text-2xl font-bold text-brand-orange leading-none">{s.num}</span>
-                  <span className="text-gray-500 text-sm">{s.label}</span>
+                { num: '2,000+', label: 'Active Clients' },
+                { num: '500+',   label: 'Websites Built' },
+                { num: '$1B+',   label: 'Revenue Generated' },
+              ].map((s, i) => (
+                <div key={s.num} className={`relative text-center sm:text-left ${i < 2 ? 'sm:border-r sm:border-white/10 sm:pr-6' : ''}`}>
+                  <div className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-orange leading-none mb-2">
+                    {s.num}
+                  </div>
+                  <div className="text-gray-400 text-xs sm:text-sm uppercase tracking-wider font-heading">
+                    {s.label}
+                  </div>
                 </div>
               ))}
             </div>
