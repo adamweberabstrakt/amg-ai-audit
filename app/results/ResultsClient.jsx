@@ -35,7 +35,18 @@ export default function ResultsClient() {
           setAuditData(saved.auditData);
           setLeadData(saved.leadData);
           setShareUrl(window.location.href);
-        } catch { router.push('/assess'); }
+        } catch {
+          // Share route uses in-memory storage that resets on cold containers —
+          // fall back to sessionStorage before giving up
+          const audit = sessionStorage.getItem('auditResults');
+          const lead  = sessionStorage.getItem('leadData');
+          if (audit && lead) {
+            try { setAuditData(JSON.parse(audit)); setLeadData(JSON.parse(lead)); }
+            catch { router.push('/assess'); }
+          } else {
+            router.push('/assess');
+          }
+        }
         return;
       }
 

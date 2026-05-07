@@ -169,12 +169,11 @@ export default function AssessmentForm() {
       if (!res.ok) throw new Error(auditData.error || 'Audit failed');
       // Fire the user's report email with PDF attached — fire-and-forget, don't block redirect
       fetch('/api/report', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ leadData:payload, auditData }) }).catch(()=>{});
-      try {
-        await fetch('/api/share', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id:shareId, auditData, leadData:payload }) });
-      } catch {
-        sessionStorage.setItem('auditResults', JSON.stringify(auditData));
-        sessionStorage.setItem('leadData', JSON.stringify(payload));
-      }
+      // Always persist to sessionStorage so ResultsClient has a local fallback
+      // (share route uses in-memory storage that resets on cold serverless containers)
+      sessionStorage.setItem('auditResults', JSON.stringify(auditData));
+      sessionStorage.setItem('leadData', JSON.stringify(payload));
+      fetch('/api/share', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id:shareId, auditData, leadData:payload }) }).catch(()=>{});
       sessionStorage.removeItem('assessmentFormData');
       router.push(`/results?id=${shareId}`);
     } catch (err) {
