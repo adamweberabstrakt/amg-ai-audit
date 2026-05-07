@@ -5,7 +5,7 @@
 // so a GTMetrix issue never takes down the whole audit.
 
 const BASE             = 'https://gtmetrix.com/api/2.0';
-const MAX_WAIT_MS      = 45000;  // Hard cap — audit route has maxDuration=60
+const MAX_WAIT_MS      = 20000;  // Hard cap — keeps total audit under 60s
 const POLL_INTERVAL_MS = 3000;
 
 export async function runGTMetrix(url) {

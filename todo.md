@@ -1,13 +1,19 @@
-# Brand Color: Orange → Scarlet
+# Fix: Audit Function Timeout
 
-## Changes needed
+## Root Cause
 
-- [ ] `tailwind.config.js` — change `brand-orange` value from `#F46F0A` to `#FF210F`
-- [ ] All source files — replace hardcoded `#e85d04` with `#FF210F`
-- [ ] All source files — replace `rgba(232,93,4,` (e85d04 as rgba) with `rgba(255,33,15,`
-- [ ] All source files — replace `hover:bg-orange-600` with `hover:bg-[#CC1A0C]` (dark scarlet hover)
-- [ ] All source files — replace `hover:text-orange-400` with `hover:text-red-400`
-- [ ] WebsiteHealthTab — replace `border-orange-500` severity chip with `border-red-500`
-- [ ] Verify build, push to main
+`FUNCTION_INVOCATION_TIMEOUT` on every audit submission.
+
+The execution is sequential in two phases:
+1. GTMetrix polls up to 45s (all providers run in parallel, but GTMetrix is the slowest)
+2. Claude runs AFTER all providers complete — adds another 5-15s
+
+Total: easily 50-60s+, hitting the function limit.
+
+## Fix Plan
+
+- [ ] `app/api/providers/gtmetrix.js` — reduce MAX_WAIT_MS from 45000 → 20000 (20s cap)
+- [ ] `vercel.json` — add explicit maxDuration: 60 for the audit route (belt + suspenders with the export)
+- [ ] Verify build passes, push to main
 
 ## Review
