@@ -61,6 +61,24 @@ export default function ResultsClient() {
     load();
   }, [router, shareId]);
 
+  // Lazy-load GTMetrix data after the fast audit results are displayed
+  useEffect(() => {
+    if (!auditData) return;
+    // Already loaded or explicitly null (e.g. share link replay)
+    if (auditData.gtmetrix !== null) return;
+    const url = auditData?.meta?.website;
+    if (!url) return;
+
+    fetch(`/api/gtmetrix?url=${encodeURIComponent(url)}`)
+      .then(r => r.ok ? r.json() : { gtmetrix: null })
+      .then(({ gtmetrix }) => {
+        setAuditData(prev => prev ? { ...prev, gtmetrix: gtmetrix ?? null } : prev);
+      })
+      .catch(() => {
+        setAuditData(prev => prev ? { ...prev, gtmetrix: null } : prev);
+      });
+  }, [auditData?.meta?.website, auditData === null ? null : auditData?.gtmetrix]);
+
   // Auto-popup: fires once 45s after audit data is loaded
   useEffect(() => {
     if (!auditData || hasShownAutoPopup.current) return;

@@ -8,10 +8,9 @@ import { runCrawl }         from '../providers/crawl';
 import { runPlaces }        from '../providers/places';
 import { runClaudeAnalysis } from '../providers/claude-analysis';
 import { runSemrush }        from '../providers/semrush';
-import { runGTMetrix }       from '../providers/gtmetrix';
 
-// Extend Vercel function timeout to 60s (default is 10s — not enough for parallel API calls)
-export const maxDuration = 60;
+// Extend Vercel function timeout to 30s — GTMetrix now loads lazily on the results page
+export const maxDuration = 30;
 
 // ── Simple in-memory rate limiter: max 5 requests per IP per hour ─────────────
 const rateLimitMap = new Map(); // ip -> { count, resetAt }
@@ -97,19 +96,17 @@ export async function POST(req) {
       .filter(comp => comp && isValidDomain(comp));
 
     // ── Run all providers in parallel ───────────────────────────────────────
-    const [pageSpeedData, crawlData, placesData, semrushData, gtmetrixData] = await Promise.allSettled([
+    const [pageSpeedData, crawlData, placesData, semrushData] = await Promise.allSettled([
       runPageSpeed(url),
       runCrawl(url),
       runPlaces(cleanCompany),
       runSemrush({ website: url, competitors: cleanCompetitors }),
-      runGTMetrix(url),
     ]);
 
     const ps       = pageSpeedData.status === 'fulfilled'  ? pageSpeedData.value  : null;
     const crawl    = crawlData.status     === 'fulfilled'   ? crawlData.value      : null;
     const places   = placesData.status   === 'fulfilled'   ? placesData.value     : null;
     const semrush  = semrushData.status  === 'fulfilled'   ? semrushData.value    : null;
-    const gtmetrix = gtmetrixData.status === 'fulfilled'   ? gtmetrixData.value   : null;
 
     // ── Run Claude analysis — wrapped so a failure returns fallback, not 500 ─
     let claudeData;
@@ -128,7 +125,7 @@ export async function POST(req) {
         crawlData:      crawl,
         placesData:     places,
         semrushData:    semrush,
-        gtmetrixData:   gtmetrix,
+        gtmetrixData:   null, // loaded lazily on results page
       });
     } catch (claudeErr) {
       console.error('[audit/route] Claude analysis failed, using fallback:', claudeErr);
@@ -140,7 +137,7 @@ export async function POST(req) {
       crawl,
       places,
       semrush,
-      gtmetrix,
+      gtmetrix: null, // lazy-loaded separately
       claude: claudeData,
       meta: {
         company,
