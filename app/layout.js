@@ -3,14 +3,14 @@ import Script from 'next/script';
 import CookieBanner from '@/components/CookieBanner';
 
 export const metadata = {
-  title: 'AI Visibility Assessment | Abstrakt Marketing Group',
+  title: 'AI Visibility Assessment | Abstrakt',
   description:
     'Find out if your business is invisible to AI. Get a free AI Visibility Assessment — covering your website health, local presence, and how AI tools like ChatGPT and Perplexity see your brand.',
   openGraph: {
-    title: 'AI Visibility Assessment | Abstrakt Marketing Group',
+    title: 'AI Visibility Assessment | Abstrakt',
     description: 'Is your business invisible to AI? Find out in minutes.',
     url: 'https://audit.abstraktmg.com',
-    siteName: 'Abstrakt Marketing Group',
+    siteName: 'Abstrakt',
     images: [
       {
         url: 'https://audit.abstraktmg.com/og-image.png',
@@ -23,7 +23,7 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Visibility Assessment | Abstrakt Marketing Group',
+    title: 'AI Visibility Assessment | Abstrakt',
     description: 'Is your business invisible to AI? Find out in minutes.',
     images: ['https://audit.abstraktmg.com/og-image.png'],
   },

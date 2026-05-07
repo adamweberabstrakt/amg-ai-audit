@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'You\'re Booked! | Abstrakt Marketing Group',
+  title: 'You\'re Booked! | Abstrakt',
 };
 
 export default function ThankYouPage() {
@@ -67,7 +67,7 @@ export default function ThankYouPage() {
       {/* Footer */}
       <footer className="px-6 py-6 border-t border-white/10 text-center">
         <p className="text-gray-500 text-sm">
-          © {new Date().getFullYear()} Abstrakt Marketing Group.
+          © {new Date().getFullYear()} Abstrakt.
           <a href="https://www.abstraktmg.com" className="hover:text-gray-400 ml-2 transition-colors">abstraktmg.com</a>
         </p>
       </footer>

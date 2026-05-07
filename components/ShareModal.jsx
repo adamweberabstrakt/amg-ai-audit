@@ -46,7 +46,7 @@ export default function ShareModal({ isOpen, onClose, shareUrl }) {
       // Use mailto as a lightweight fallback — opens user's mail client pre-filled
       const subject = encodeURIComponent('Your AI Visibility Assessment Results');
       const body    = encodeURIComponent(
-        `Hi,\n\nHere are the AI Visibility Assessment results from Abstrakt Marketing Group:\n\n${shareUrl}\n\nThis link is valid for 7 days.\n\nAbstrakt Marketing Group\nhttps://www.abstraktmg.com`
+        `Hi,\n\nHere are the AI Visibility Assessment results from Abstrakt:\n\n${shareUrl}\n\nThis link is valid for 7 days.\n\nAbstrakt\nhttps://www.abstraktmg.com`
       );
       window.open(`mailto:${trimmed}?subject=${subject}&body=${body}`, '_blank');
       setSent(true);

@@ -27,11 +27,11 @@ function Header() {
     <header className="border-b border-white/10 px-6 py-4 sticky top-0 z-50 bg-[#1a1a1a]/95 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <a href="/" className="flex items-center gap-3">
-          <img src="/brand/logo-white.png" alt="Abstrakt Marketing Group" className="dark-logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
-          <img src="/brand/logo-gray.png"  alt="Abstrakt Marketing Group" className="light-logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+          <img src="/brand/logo-white.png" alt="Abstrakt" className="dark-logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+          <img src="/brand/logo-gray.png"  alt="Abstrakt" className="light-logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
           <span className="text-gray-400">·</span>
           <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-300">
-            AI Search Radar
+            AI Search Assessment
           </span>
         </a>
         <Link href="/assess" className="btn-primary text-sm px-5 py-2.5">
@@ -509,7 +509,7 @@ function Footer() {
     <footer className="px-6 py-8 border-t border-white/10 bg-[#111]">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <p className="text-gray-600 text-sm">
-          © {new Date().getFullYear()} Abstrakt Marketing Group. All rights reserved.
+          © {new Date().getFullYear()} Abstrakt. All rights reserved.
         </p>
         <div className="flex items-center gap-6 text-xs text-gray-700">
           <a href="https://www.abstraktmg.com" className="hover:text-gray-400 transition-colors">abstraktmg.com</a>

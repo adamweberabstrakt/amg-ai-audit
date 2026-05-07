@@ -2,10 +2,10 @@ import { Suspense } from 'react';
 import ResultsClient from './ResultsClient';
 
 export const metadata = {
-  title: 'Your AI Visibility Results | Abstrakt Marketing Group',
+  title: 'Your AI Visibility Results | Abstrakt',
   description: 'Your free AI Visibility Assessment is ready. See how you stack up against competitors in AI search — and what to do about it.',
   openGraph: {
-    title: 'Your AI Visibility Results | Abstrakt Marketing Group',
+    title: 'Your AI Visibility Results | Abstrakt',
     description: 'See how your business stacks up against competitors in AI search.',
     images: [{ url: 'https://audit.abstraktmg.com/og-image.png', width: 1200, height: 630 }],
   },

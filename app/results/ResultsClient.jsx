@@ -131,7 +131,7 @@ export default function ResultsClient() {
               className="light-logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} priority />
             <span className="text-gray-400">·</span>
             <span className="font-heading font-semibold text-sm uppercase tracking-widest text-gray-300">
-              AI Search Radar
+              AI Search Assessment
             </span>
           </a>
           <div className="flex items-center gap-3">
