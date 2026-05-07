@@ -1,32 +1,13 @@
-# Debug: Results Page Not Loading
+# Brand Color: Orange → Scarlet
 
-## Root Cause
+## Changes needed
 
-The share route (`/api/share`) uses an **in-memory Map** for storage. Vercel serverless functions
-are ephemeral — each request can hit a *different* container with a fresh, empty Map.
-
-**The bug flow:**
-1. User submits audit → `/api/audit` succeeds
-2. `/api/share` POST succeeds (saves to in-memory Map *on this container*)
-3. `sessionStorage` is **NOT set** — it only sets in the `catch` block if share POST *throws*
-4. User is redirected to `/results?id=shareId`
-5. Results page does `GET /api/share?id=xxx` — **hits a fresh container with empty Map → 404**
-6. `ResultsClient` catches the 404 → redirects back to `/assess` (appears broken)
-
-## Fix Plan
-
-Two minimal changes, same two files as the bug:
-
-### Todo
-
-- [ ] **`components/AssessmentForm.jsx`** — Move `sessionStorage.setItem` calls **outside** the inner
-      try/catch so they always run after a successful audit (not just when share POST fails).
-
-- [ ] **`app/results/ResultsClient.jsx`** — When shareId is present but the share GET returns
-      404/error, fall back to sessionStorage before redirecting to /assess.
-
-- [ ] Verify build passes, push to main
+- [ ] `tailwind.config.js` — change `brand-orange` value from `#F46F0A` to `#FF210F`
+- [ ] All source files — replace hardcoded `#e85d04` with `#FF210F`
+- [ ] All source files — replace `rgba(232,93,4,` (e85d04 as rgba) with `rgba(255,33,15,`
+- [ ] All source files — replace `hover:bg-orange-600` with `hover:bg-[#CC1A0C]` (dark scarlet hover)
+- [ ] All source files — replace `hover:text-orange-400` with `hover:text-red-400`
+- [ ] WebsiteHealthTab — replace `border-orange-500` severity chip with `border-red-500`
+- [ ] Verify build, push to main
 
 ## Review
-
-_(filled after changes are made)_

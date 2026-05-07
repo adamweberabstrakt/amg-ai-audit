@@ -250,7 +250,7 @@ function StepProgress({ current, total }) {
               <div className="flex flex-col items-center gap-2 flex-shrink-0">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-heading font-semibold text-base transition-all duration-300 ${
                   done   ? 'bg-green-500 text-white shadow-[0_0_14px_rgba(34,197,94,0.35)]' :
-                  active ? 'bg-brand-orange text-white shadow-[0_0_18px_rgba(232,93,4,0.35)] border-2 border-brand-orange' :
+                  active ? 'bg-brand-orange text-white shadow-[0_0_18px_rgba(255,33,15,0.35)] border-2 border-brand-orange' :
                            'bg-white/10 text-gray-500 border-2 border-white/10'
                 }`}>
                   {done ? (
@@ -440,7 +440,7 @@ function Step3({ formData, update, toggleAITool, updateCompetitor, addCompetitor
           <button 
             type="button" 
             onClick={addCompetitor}
-            className="text-sm text-brand-orange hover:text-orange-400 transition-colors font-medium"
+            className="text-sm text-brand-orange hover:text-red-400 transition-colors font-medium"
           >
             + Add competitor
           </button>
@@ -496,7 +496,7 @@ function IconField({ label, icon, error, children }) {
   return (
     <div className="mb-5">
       {label && <label className="block text-sm font-medium text-gray-300 mb-1.5">{label}</label>}
-      <div className={`flex items-center bg-[#222] border rounded-lg overflow-hidden transition-all focus-within:border-brand-orange focus-within:shadow-[0_0_0_3px_rgba(232,93,4,0.1)] ${error ? 'border-red-500' : 'border-white/20'}`}>
+      <div className={`flex items-center bg-[#222] border rounded-lg overflow-hidden transition-all focus-within:border-brand-orange focus-within:shadow-[0_0_0_3px_rgba(255,33,15,0.1)] ${error ? 'border-red-500' : 'border-white/20'}`}>
         {icon && <span className="pl-4 text-gray-500 flex-shrink-0">{icon}</span>}
         <div className="flex-1 [&_input]:w-full [&_input]:bg-transparent [&_input]:border-none [&_input]:outline-none [&_input]:px-3 [&_input]:py-3 [&_input]:text-white [&_input]:placeholder-gray-600">
           {children}
@@ -512,7 +512,7 @@ function IconSelectBtn({ label, icon, selected, onClick, multi }) {
     <button type="button" onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 rounded-lg border text-sm font-medium text-left transition-all duration-200 ${
         selected
-          ? 'border-brand-orange bg-brand-orange/10 text-white shadow-[0_0_0_1px_rgba(232,93,4,0.3)]'
+          ? 'border-brand-orange bg-brand-orange/10 text-white shadow-[0_0_0_1px_rgba(255,33,15,0.3)]'
           : 'border-white/15 bg-[#222] text-gray-400 hover:border-white/30 hover:bg-white/5'
       }`}>
       {icon && (

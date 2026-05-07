@@ -110,7 +110,7 @@ function Hero() {
           </div>
 
           {/* Wistia video */}
-          <div className="lg:flex-shrink-0 lg:w-[480px] w-full max-w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(232,93,4,0.08)]">
+          <div className="lg:flex-shrink-0 lg:w-[480px] w-full max-w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(255,33,15,0.08)]">
             <style>{`wistia-player[media-id='m2kgo37bny']:not(:defined){background:center/contain no-repeat url('https://fast.wistia.com/embed/medias/m2kgo37bny/swatch');display:block;filter:blur(5px);padding-top:56.25%}`}</style>
             {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
             <wistia-player media-id="m2kgo37bny" aspect="1.7777777777777777"></wistia-player>
@@ -204,7 +204,7 @@ function PainPoints() {
               <div className="absolute inset-0 bg-brand-orange/0 group-hover:bg-brand-orange/[0.03] transition-colors duration-300 pointer-events-none rounded-xl" />
               {/* Glow border on hover */}
               <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                style={{ boxShadow: 'inset 0 0 0 1px rgba(232,93,4,0.4)' }} />
+                style={{ boxShadow: 'inset 0 0 0 1px rgba(255,33,15,0.4)' }} />
               <div className="w-11 h-11 rounded-xl bg-brand-orange/10 border border-brand-orange/20 flex items-center justify-center mb-5 transition-colors duration-300 group-hover:bg-brand-orange/15">
                 {pain.icon}
               </div>
@@ -469,7 +469,7 @@ function FinalCTA() {
         </p>
         <Link
           href="/assess"
-          className="inline-block bg-brand-orange text-white font-heading font-bold uppercase tracking-wide px-12 py-5 rounded-lg hover:bg-orange-600 transition-all duration-200 text-lg shadow-[0_0_40px_rgba(232,93,4,0.3)] hover:shadow-[0_0_60px_rgba(232,93,4,0.5)]"
+          className="inline-block bg-brand-orange text-white font-heading font-bold uppercase tracking-wide px-12 py-5 rounded-lg hover:bg-[#CC1A0C] transition-all duration-200 text-lg shadow-[0_0_40px_rgba(255,33,15,0.3)] hover:shadow-[0_0_60px_rgba(255,33,15,0.5)]"
         >
           Run My Free Competitor Assessment →
         </Link>
@@ -491,7 +491,7 @@ function GrowZoneBanner() {
           href="https://www.abstraktmg.com/grow-zone/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm font-heading font-semibold text-brand-orange hover:text-orange-400 transition-colors whitespace-nowrap"
+          className="flex items-center gap-2 text-sm font-heading font-semibold text-brand-orange hover:text-red-400 transition-colors whitespace-nowrap"
         >
           Explore the Grow Zone
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

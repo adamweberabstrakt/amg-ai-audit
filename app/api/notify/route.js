@@ -183,7 +183,7 @@ function buildEmailContent(type, data) {
     case 'audit_completed':
       const html = baseHtml.replace('{{CONTENT}}', `
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-          <h2 style="color: #e85d04; margin: 0 0 15px 0;">🎯 New AI Audit Completed</h2>
+          <h2 style="color: #FF210F; margin: 0 0 15px 0;">🎯 New AI Audit Completed</h2>
           <table style="width: 100%; border-collapse: collapse;">
             <tr><td style="padding: 5px 0; font-weight: bold;">Company:</td><td>${data.company}</td></tr>
             <tr><td style="padding: 5px 0; font-weight: bold;">Website:</td><td>${data.website}</td></tr>
@@ -194,7 +194,7 @@ function buildEmailContent(type, data) {
           </table>
         </div>
         <p style="text-align: center;">
-          <a href="${data.resultsUrl}" style="background: #e85d04; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+          <a href="${data.resultsUrl}" style="background: #FF210F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
             View Full Results
           </a>
         </p>
@@ -209,7 +209,7 @@ function buildEmailContent(type, data) {
     case 'form_submission':
       const formHtml = baseHtml.replace('{{CONTENT}}', `
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
-          <h2 style="color: #e85d04; margin: 0 0 15px 0;">📝 New Lead Captured</h2>
+          <h2 style="color: #FF210F; margin: 0 0 15px 0;">📝 New Lead Captured</h2>
           <table style="width: 100%; border-collapse: collapse;">
             <tr><td style="padding: 5px 0; font-weight: bold;">Company:</td><td>${data.company}</td></tr>
             <tr><td style="padding: 5px 0; font-weight: bold;">Contact:</td><td>${data.firstName} ${data.lastName}</td></tr>

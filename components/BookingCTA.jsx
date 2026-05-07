@@ -44,7 +44,7 @@ export default function BookingCTA({ score, onOpen }) {
 
           <button
             onClick={onOpen}
-            className="btn-primary flex-shrink-0 shadow-[0_0_24px_rgba(232,93,4,0.3)]"
+            className="btn-primary flex-shrink-0 shadow-[0_0_24px_rgba(255,33,15,0.3)]"
           >
             Close the Gap — Talk to a Strategist
           </button>
@@ -60,7 +60,7 @@ export default function BookingCTA({ score, onOpen }) {
           </span>
         </div>
         <button onClick={onOpen}
-          className={`btn-primary text-sm py-3 px-5 flex-shrink-0 transition-all duration-300 ${pulsing ? 'shadow-[0_0_20px_rgba(232,93,4,0.5)]' : ''}`}>
+          className={`btn-primary text-sm py-3 px-5 flex-shrink-0 transition-all duration-300 ${pulsing ? 'shadow-[0_0_20px_rgba(255,33,15,0.5)]' : ''}`}>
           Close the Gap
         </button>
       </div>

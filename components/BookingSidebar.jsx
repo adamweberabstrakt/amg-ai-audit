@@ -53,7 +53,7 @@ export default function BookingSidebar({ onBook }) {
                 href="https://www.abstraktmg.com/guide-to-lead-generation/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-brand-orange hover:text-orange-400 transition-colors text-xs font-medium"
+                className="inline-flex items-center gap-1 text-brand-orange hover:text-red-400 transition-colors text-xs font-medium"
               >
                 Get the Free Guide
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3">

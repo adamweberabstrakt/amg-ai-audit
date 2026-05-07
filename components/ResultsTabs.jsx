@@ -56,7 +56,7 @@ export default function ResultsTabs({ auditData, onBook }) {
               onClick={() => setActiveTab(tab.id)}
               className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                 isActive
-                  ? 'bg-brand-orange text-white shadow-[0_0_16px_rgba(232,93,4,0.3)]'
+                  ? 'bg-brand-orange text-white shadow-[0_0_16px_rgba(255,33,15,0.3)]'
                   : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'
               }`}
             >

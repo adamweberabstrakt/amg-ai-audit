@@ -67,7 +67,7 @@ function buildEmailHTML(leadData, auditData) {
 
         <!-- Header -->
         <tr><td style="background:#3d3d3d;padding:30px 40px;">
-          <p style="color:#e85d04;font-size:18px;font-weight:bold;margin:0;">ABSTRAKT MARKETING GROUP</p>
+          <p style="color:#FF210F;font-size:18px;font-weight:bold;margin:0;">ABSTRAKT MARKETING GROUP</p>
           <p style="color:#ffffff;font-size:14px;margin:5px 0 0;">AI Visibility Assessment Report</p>
         </td></tr>
 
@@ -89,7 +89,7 @@ function buildEmailHTML(leadData, auditData) {
           <p style="font-size:16px;font-weight:bold;color:#3d3d3d;margin-bottom:15px;">Your Top Recommendations</p>
           ${recs.map((rec, i) => `
             <div style="display:flex;gap:15px;margin-bottom:15px;">
-              <span style="color:#e85d04;font-size:18px;font-weight:bold;min-width:20px;">${i + 1}.</span>
+              <span style="color:#FF210F;font-size:18px;font-weight:bold;min-width:20px;">${i + 1}.</span>
               <p style="font-size:13px;color:#555;line-height:1.5;margin:0;">${rec}</p>
             </div>
           `).join('')}
@@ -99,7 +99,7 @@ function buildEmailHTML(leadData, auditData) {
         <tr><td style="padding:30px 40px;text-align:center;background:#3d3d3d;">
           <p style="color:#fff;font-size:16px;margin:0 0 15px;">Your full report is attached.</p>
           <p style="color:#ccc;font-size:13px;margin:0 0 25px;">Ready to fix your AI visibility gaps? Book a free strategy call with our team.</p>
-          <a href="https://abstraktmg.com" style="background:#e85d04;color:#fff;text-decoration:none;padding:14px 28px;border-radius:5px;font-weight:bold;font-size:14px;">Book My Free Call</a>
+          <a href="https://abstraktmg.com" style="background:#FF210F;color:#fff;text-decoration:none;padding:14px 28px;border-radius:5px;font-weight:bold;font-size:14px;">Book My Free Call</a>
         </td></tr>
 
         <!-- Footer -->

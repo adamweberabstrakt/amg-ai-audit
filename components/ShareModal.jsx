@@ -93,7 +93,7 @@ export default function ShareModal({ isOpen, onClose, shareUrl }) {
               <button
                 onClick={copyLink}
                 disabled={!shareUrl}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-orange hover:bg-orange-600 text-white text-sm font-heading font-semibold transition-colors disabled:opacity-40 whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-orange hover:bg-[#CC1A0C] text-white text-sm font-heading font-semibold transition-colors disabled:opacity-40 whitespace-nowrap"
               >
                 {copied ? (
                   <>

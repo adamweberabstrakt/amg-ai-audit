@@ -135,7 +135,7 @@ export default function ResultsClient() {
 
       {/* Results hero */}
       <div className="px-6 py-10 border-b border-white/10 bg-brand-dark relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 50% 50%, rgba(232,93,4,0.06), transparent 70%)' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 50% 50%, rgba(255,33,15,0.06), transparent 70%)' }} />
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8 relative">
           <div className="flex-shrink-0 text-center w-full md:w-auto">
             <ScoreCircle score={score} />
@@ -205,7 +205,7 @@ export default function ResultsClient() {
             }).toString()}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-6 py-3 bg-brand-orange hover:bg-orange-600 text-white font-heading font-semibold rounded-lg transition-colors shadow-[0_0_20px_rgba(232,93,4,0.3)]"
+            className="flex items-center gap-2 px-6 py-3 bg-brand-orange hover:bg-[#CC1A0C] text-white font-heading font-semibold rounded-lg transition-colors shadow-[0_0_20px_rgba(255,33,15,0.3)]"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
               <path d="M9 12l2 2 4-4"/>

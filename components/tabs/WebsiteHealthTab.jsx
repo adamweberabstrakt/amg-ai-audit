@@ -156,7 +156,7 @@ function HealthScoreHero({ score, criticalCount, highCount }) {
 function IssueCard({ severity, label, detail }) {
   const styles = {
     critical: { border: 'border-red-500/50',    bg: 'bg-red-950/30',    chip: 'bg-red-500/20 text-red-300',       dot: '#ef4444', chipLabel: 'Critical' },
-    high:     { border: 'border-orange-500/50', bg: 'bg-orange-950/30', chip: 'bg-orange-500/20 text-orange-300', dot: '#f97316', chipLabel: 'High' },
+    high:     { border: 'border-red-500/50', bg: 'bg-red-950/30', chip: 'bg-red-500/20 text-red-300', dot: '#FF210F', chipLabel: 'High' },
     medium:   { border: 'border-yellow-500/50', bg: 'bg-yellow-950/30', chip: 'bg-yellow-500/20 text-yellow-300', dot: '#eab308', chipLabel: 'Medium' },
   }[severity] ?? { border: 'border-gray-500/50', bg: '', chip: 'bg-gray-500/20 text-gray-300', dot: '#6b7280', chipLabel: severity };
 
@@ -180,7 +180,7 @@ function GTMetrixPanel({ data }) {
   const gradeColor = data.grade === 'A' ? 'text-green-400'
     : data.grade === 'B' ? 'text-green-300'
     : data.grade === 'C' ? 'text-yellow-400'
-    : data.grade === 'D' ? 'text-orange-400'
+    : data.grade === 'D' ? 'text-red-400'
     : data.grade === 'F' || data.grade === 'E' ? 'text-red-400'
     : 'text-gray-400';
 

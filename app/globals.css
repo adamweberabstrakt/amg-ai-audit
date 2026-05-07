@@ -24,7 +24,7 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-block bg-brand-orange text-white font-heading font-semibold uppercase tracking-wide px-8 py-4 rounded-lg hover:bg-orange-600 transition-all duration-200;
+    @apply inline-block bg-brand-orange text-white font-heading font-semibold uppercase tracking-wide px-8 py-4 rounded-lg hover:bg-[#CC1A0C] transition-all duration-200;
   }
 
   .btn-secondary {
