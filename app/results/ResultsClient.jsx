@@ -23,6 +23,7 @@ export default function ResultsClient() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [schedulerOpen, setSchedulerOpen] = useState(false);
   const hasShownAutoPopup = useRef(false);
+  const gtmetrixFetchFired = useRef(false);  // prevent re-firing on state updates
   const popupTimer        = useRef(null);
 
   useEffect(() => {
@@ -61,23 +62,30 @@ export default function ResultsClient() {
     load();
   }, [router, shareId]);
 
-  // Lazy-load GTMetrix data after the fast audit results are displayed
+  // Lazy-load GTMetrix after fast audit data is ready.
+  // Uses a ref guard so the fetch fires exactly once regardless of re-renders or failures.
+  // null  = loading/pending  (spinner shown)
+  // false = done, no data    (spinner stops, panel hidden)
+  // obj   = success          (GTMetrix panel rendered)
   useEffect(() => {
     if (!auditData) return;
-    // Already loaded or explicitly null (e.g. share link replay)
-    if (auditData.gtmetrix !== null) return;
+    if (gtmetrixFetchFired.current) return;   // already fired — don't retry
+    if (auditData.gtmetrix !== null) return;  // share-link replay already has data
     const url = auditData?.meta?.website;
     if (!url) return;
+
+    gtmetrixFetchFired.current = true;
 
     fetch(`/api/gtmetrix?url=${encodeURIComponent(url)}`)
       .then(r => r.ok ? r.json() : { gtmetrix: null })
       .then(({ gtmetrix }) => {
-        setAuditData(prev => prev ? { ...prev, gtmetrix: gtmetrix ?? null } : prev);
+        // null response from API → set false so spinner stops cleanly
+        setAuditData(prev => prev ? { ...prev, gtmetrix: gtmetrix ?? false } : prev);
       })
       .catch(() => {
-        setAuditData(prev => prev ? { ...prev, gtmetrix: null } : prev);
+        setAuditData(prev => prev ? { ...prev, gtmetrix: false } : prev);
       });
-  }, [auditData?.meta?.website, auditData === null ? null : auditData?.gtmetrix]);
+  }, [auditData]);
 
   // Auto-popup: fires once 45s after audit data is loaded
   useEffect(() => {

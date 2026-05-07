@@ -1,16 +1,17 @@
-# Feature: Progressive / Lazy-Load Audit Results
+# Fix: GTMetrix lazy load never resolves
 
-## Approach
-Split into two phases:
-- Phase 1 (fast, ~10-15s): PageSpeed + Crawl + Places + SEMRush + Claude → redirect to results
-- Phase 2 (lazy, ~0-20s): GTMetrix loads in background on the results page, Website Health tab updates when done
+## Root Cause (3 issues)
+
+1. MAX_WAIT_MS = 20s in provider — GTMetrix tests take 30-60s, always times out
+2. maxDuration = 25s on the route — even if provider waited, function gets killed
+3. Infinite loop in ResultsClient — on failure, gtmetrix stays null, effect re-fires forever
 
 ## Todo
 
-- [ ] `app/api/audit/route.js` — remove GTMetrix from parallel batch + Claude prompt; reduce maxDuration to 30
-- [ ] `app/api/gtmetrix/route.js` — new GET endpoint: accepts ?url=, runs GTMetrix, returns data
-- [ ] `vercel.json` — add gtmetrix route with maxDuration:25; reduce audit to 30
-- [ ] `app/results/ResultsClient.jsx` — after auditData loads, fire lazy GTMetrix fetch; embed _gtmetrixLoading flag in auditData state so WebsiteHealthTab can react
-- [ ] `components/tabs/WebsiteHealthTab.jsx` — show loading skeleton while _gtmetrixLoading is true
+- [ ] gtmetrix.js — MAX_WAIT_MS 20s → 55s
+- [ ] app/api/gtmetrix/route.js — maxDuration 25 → 60
+- [ ] vercel.json — gtmetrix route maxDuration 25 → 60
+- [ ] ResultsClient.jsx — add useRef guard to fire fetch once; set false on failure to stop spinner
+- [ ] WebsiteHealthTab.jsx — treat false as "done, no data" so spinner stops after failure
 
 ## Review

@@ -4,7 +4,7 @@
       "maxDuration": 30
     },
     "app/api/gtmetrix/route.js": {
-      "maxDuration": 25
+      "maxDuration": 60
     },
     "app/api/pdf/route.js": {
       "maxDuration": 30

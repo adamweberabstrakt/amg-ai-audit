@@ -73,16 +73,19 @@ export default function WebsiteHealthTab({ auditData }) {
         </div>
       )}
 
-      {/* GTMetrix — lazy loaded; null means "loading", after fetch it's data or false */}
+      {/* GTMetrix — lazy loaded.
+           null  = still loading (spinner)
+           false = fetch finished, no data available (spinner stops, panel hidden)
+           obj   = data ready (panel renders) */}
       {auditData?.gtmetrix === null && auditData?.meta?.website ? (
         <div className="card flex items-center gap-4 py-6">
           <div className="w-6 h-6 rounded-full border-2 border-brand-orange border-t-transparent animate-spin flex-shrink-0" />
           <div>
             <p className="font-heading font-semibold text-white text-sm">Running GTMetrix Analysis…</p>
-            <p className="text-xs text-gray-400 mt-0.5">Performance grades load separately — usually within 20s</p>
+            <p className="text-xs text-gray-400 mt-0.5">Performance grades loading — this can take up to 60s</p>
           </div>
         </div>
-      ) : gtmetrix ? (
+      ) : gtmetrix && gtmetrix !== false ? (
         <GTMetrixPanel data={gtmetrix} />
       ) : null}
 
