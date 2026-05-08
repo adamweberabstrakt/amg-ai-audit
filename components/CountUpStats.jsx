@@ -51,7 +51,7 @@ function StatItem({ stat, active }) {
       <div className="font-heading text-sm font-semibold text-white mb-4 uppercase tracking-widest">
         {stat.label}
       </div>
-      <p className="text-gray-500 text-sm leading-relaxed max-w-[220px] mx-auto">
+      <p className="text-gray-400 text-sm leading-relaxed max-w-[220px] mx-auto">
         {stat.detail}
       </p>
     </div>

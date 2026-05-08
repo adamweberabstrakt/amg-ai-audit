@@ -100,3 +100,29 @@ html.light .bg-grid-pattern {
 .light-logo { display: none; }
 html.light .dark-logo  { display: none; }
 html.light .light-logo { display: block; }
+
+/* ── Home page light mode ── */
+html.light .bg-\[#111\]     { background-color: #f0f0f0; }
+html.light .bg-\[#111111\]  { background-color: #f0f0f0; }
+html.light .bg-\[#222\]     { background-color: #ffffff; }
+html.light .bg-\[#1a1a1a\]\/95 { background-color: rgba(255,255,255,0.95); }
+
+/* Pain cards hover glow — softer on light bg */
+html.light .border-white\/10  { border-color: #e5e7eb; }
+html.light .divide-white\/10  { border-color: #e5e7eb; }
+
+/* Hero stats widget */
+html.light .bg-\[#1e1e1e\]\/60 { background-color: rgba(255,255,255,0.8); }
+
+/* Scrolling trust banner */
+html.light .text-gray-400 { color: #4b5563; }
+html.light .text-gray-300 { color: #374151; }
+
+/* TrustBar + WhatYouGet stat numbers stay scarlet — already brand-orange so fine */
+
+/* Warning callout box */
+html.light .bg-brand-orange\/5  { background-color: rgba(255,33,15,0.05); }
+html.light .bg-brand-orange\/10 { background-color: rgba(255,33,15,0.08); }
+
+/* Footer */
+html.light footer { background-color: #f0f0f0; border-color: #e5e7eb; }

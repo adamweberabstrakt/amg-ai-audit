@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import CountUpStats from '@/components/CountUpStats';
 import ReviewSlider from '@/components/ReviewSlider';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function HomePage() {
   return (
@@ -34,9 +35,12 @@ function Header() {
             AI Search Assessment
           </span>
         </a>
-        <Link href="/assess" className="btn-primary text-sm px-5 py-2.5">
-          Get Free Assessment →
-        </Link>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <Link href="/assess" className="btn-primary text-sm px-5 py-2.5">
+            Get Free Assessment →
+          </Link>
+        </div>
       </div>
     </header>
   );
@@ -79,7 +83,7 @@ function Hero() {
               ChatGPT, Perplexity, and Google AI Overviews are recommending your competitors.{' '}
               <em className="text-white not-italic font-medium">Find out why — and what it's costing you.</em>
             </p>
-            <p className="text-gray-500 mb-12 max-w-xl leading-relaxed">
+            <p className="text-gray-300 mb-12 max-w-xl leading-relaxed">
               Get a free competitor gap assessment in under 2 minutes. See exactly where your brand stands vs. the competition in AI search.
             </p>
 
@@ -87,7 +91,7 @@ function Hero() {
               <Link href="/assess" className="btn-primary text-base">
                 See How I Compare to Competitors →
               </Link>
-              <p className="text-sm text-gray-600">No credit card &nbsp;·&nbsp; Takes 2 minutes</p>
+              <p className="text-sm text-gray-400">No credit card &nbsp;·&nbsp; Takes 2 minutes</p>
             </div>
 
           </div>
@@ -130,7 +134,7 @@ function HeroStatsWidget() {
           <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-brand-orange opacity-60 rounded-r" />
           <div className="font-heading text-4xl font-bold text-brand-orange leading-none mb-1">{s.value}{s.suffix}</div>
           <div className="font-heading text-[11px] font-semibold uppercase tracking-wider text-white mb-1">{s.label}</div>
-          <p className="text-gray-500 text-xs leading-relaxed">{s.detail}</p>
+          <p className="text-gray-400 text-xs leading-relaxed">{s.detail}</p>
         </div>
       ))}
     </div>
@@ -162,7 +166,7 @@ function PainStats() {
   return (
     <section className="bg-[#111] border-y border-white/10 py-20 px-6">
       <div className="max-w-6xl mx-auto">
-        <p className="text-center text-gray-600 text-xs uppercase tracking-[0.2em] font-heading mb-12">
+        <p className="text-center text-gray-400 text-xs uppercase tracking-[0.2em] font-heading mb-12">
           Why your competitors are pulling ahead right now
         </p>
         <CountUpStats />
@@ -240,7 +244,7 @@ function PainPoints() {
               <h3 className="font-heading text-lg font-semibold text-white mb-3 leading-snug">
                 {pain.headline}
               </h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{pain.body}</p>
+              <p className="text-gray-300 text-sm leading-relaxed">{pain.body}</p>
             </div>
           ))}
         </div>
@@ -394,7 +398,7 @@ function WhatYouGet() {
             A Complete Picture of{' '}
             <span className="text-white">Your Competitive Position</span>
           </h2>
-          <p className="text-gray-500 max-w-xl mx-auto leading-relaxed">
+          <p className="text-gray-300 max-w-xl mx-auto leading-relaxed">
             In under 2 minutes, you'll see exactly how you stack up against competitors in AI search — and what to do about it.
           </p>
         </div>
@@ -425,7 +429,7 @@ function WhatYouGet() {
                   ))}
                 </ul>
                 <div className="pt-4 border-t border-white/10 mt-2">
-                  <p className="text-xs text-gray-600 italic leading-relaxed">{item.why}</p>
+                  <p className="text-xs text-gray-400 italic leading-relaxed">{item.why}</p>
                 </div>
               </div>
             </div>
@@ -436,7 +440,7 @@ function WhatYouGet() {
           <Link href="/assess" className="btn-primary text-base">
             See How I Compare →
           </Link>
-          <p className="text-gray-600 text-sm mt-4">No credit card &nbsp;·&nbsp; No commitment &nbsp;·&nbsp; Takes 2 minutes</p>
+          <p className="text-gray-400 text-sm mt-4">No credit card &nbsp;·&nbsp; No commitment &nbsp;·&nbsp; Takes 2 minutes</p>
         </div>
       </div>
     </section>
@@ -457,7 +461,7 @@ function TrustBar() {
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
       <div className="max-w-6xl mx-auto">
-        <p className="text-center text-gray-600 text-xs uppercase tracking-[0.2em] font-heading mb-14">
+        <p className="text-center text-gray-400 text-xs uppercase tracking-[0.2em] font-heading mb-14">
           Trusted by B2B companies across North America
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -469,7 +473,7 @@ function TrustBar() {
               <div className="font-heading text-5xl font-bold text-brand-orange mb-2 leading-none">
                 {stat.value}
               </div>
-              <div className="text-gray-500 text-sm leading-snug">{stat.label}</div>
+              <div className="text-gray-300 text-sm leading-snug">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -502,7 +506,7 @@ function FinalCTA() {
         >
           Run My Free Competitor Assessment →
         </Link>
-        <p className="text-gray-600 text-sm mt-5">No credit card &nbsp;·&nbsp; No commitment</p>
+        <p className="text-gray-400 text-sm mt-5">No credit card &nbsp;·&nbsp; No commitment</p>
       </div>
     </section>
   );
@@ -537,7 +541,7 @@ function Footer() {
   return (
     <footer className="px-6 py-8 border-t border-white/10 bg-[#111]">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-        <p className="text-gray-600 text-sm">
+        <p className="text-gray-400 text-sm">
           © {new Date().getFullYear()} Abstrakt. All rights reserved.
         </p>
         <div className="flex items-center gap-6 text-xs text-gray-700">
