@@ -1,17 +1,12 @@
-# Fix: GTMetrix lazy load never resolves
-
-## Root Cause (3 issues)
-
-1. MAX_WAIT_MS = 20s in provider — GTMetrix tests take 30-60s, always times out
-2. maxDuration = 25s on the route — even if provider waited, function gets killed
-3. Infinite loop in ResultsClient — on failure, gtmetrix stays null, effect re-fires forever
+# Home Page: Match HTML Variant Layout
 
 ## Todo
-
-- [ ] gtmetrix.js — MAX_WAIT_MS 20s → 55s
-- [ ] app/api/gtmetrix/route.js — maxDuration 25 → 60
-- [ ] vercel.json — gtmetrix route maxDuration 25 → 60
-- [ ] ResultsClient.jsx — add useRef guard to fire fetch once; set false on failure to stop spinner
-- [ ] WebsiteHealthTab.jsx — treat false as "done, no data" so spinner stops after failure
+- [ ] Hero: remove Wistia video from right column, add vertical urgency stats widget
+- [ ] Hero: remove trust stats row (2000+/500+/$1B+) from bottom of left content
+- [ ] HomePage: comment out <ScrollingTrustBanner />
+- [ ] HomePage: remove <PainStats /> (stats now in hero)
+- [ ] Add VideoSection component with Wistia + "Start Winning In AI Search" label
+- [ ] HomePage: insert <VideoSection /> between <PainPoints /> and <WhatYouGet />
+- [ ] Build + push
 
 ## Review

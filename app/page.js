@@ -8,9 +8,9 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#1a1a1a] text-white overflow-x-hidden">
       <Header />
       <Hero />
-      <ScrollingTrustBanner />
-      <PainStats />
+      {/* <ScrollingTrustBanner /> */}{/* Awards banner hidden — restore when updated badge files are ready */}
       <PainPoints />
+      <VideoSection />
       <WhatYouGet />
       <ReviewSlider />
       <TrustBar />
@@ -90,31 +90,10 @@ function Hero() {
               <p className="text-sm text-gray-600">No credit card &nbsp;·&nbsp; Takes 2 minutes</p>
             </div>
 
-            {/* Trust stats row */}
-            <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-10 pt-8 border-t border-white/10">
-              {[
-                { num: '2,000+', label: 'Active Clients' },
-                { num: '500+',   label: 'Websites Built' },
-                { num: '$1B+',   label: 'Revenue Generated' },
-              ].map((s, i) => (
-                <div key={s.num} className={`relative text-center sm:text-left ${i < 2 ? 'sm:border-r sm:border-white/10 sm:pr-6' : ''}`}>
-                  <div className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-orange leading-none mb-2">
-                    {s.num}
-                  </div>
-                  <div className="text-gray-400 text-xs sm:text-sm uppercase tracking-wider font-heading">
-                    {s.label}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
 
-          {/* Wistia video */}
-          <div className="lg:flex-shrink-0 lg:w-[480px] w-full max-w-full rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(255,33,15,0.08)]">
-            <style>{`wistia-player[media-id='m2kgo37bny']:not(:defined){background:center/contain no-repeat url('https://fast.wistia.com/embed/medias/m2kgo37bny/swatch');display:block;filter:blur(5px);padding-top:56.25%}`}</style>
-            {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
-            <wistia-player media-id="m2kgo37bny" aspect="1.7777777777777777"></wistia-player>
-          </div>
+          {/* Urgency stats widget */}
+          <HeroStatsWidget />
         </div>
       </div>
 
@@ -128,7 +107,57 @@ function Hero() {
   );
 }
 
-// ─── Pain Stats ───────────────────────────────────────────────────────────────
+
+// ─── Hero Stats Widget ────────────────────────────────────────────────────────
+function HeroStatsWidget() {
+  const stats = [
+    { value: 58,  suffix: '%',  label: 'Drop in Organic CTR',    detail: 'AI answers the query — your traffic never arrives.' },
+    { value: 30,  suffix: '%+', label: 'Avg. B2B Traffic Loss',   detail: 'Double-digit organic declines since AI Overviews launched.' },
+    { value: 50,  suffix: '%+', label: 'Drop in Impressions',     detail: 'AI answers push organic results below the fold.' },
+  ];
+  return (
+    <div className="lg:flex-shrink-0 lg:w-[300px] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#1e1e1e]/60 backdrop-blur-sm shadow-[0_0_60px_rgba(255,33,15,0.08)]">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-white/10 bg-brand-orange/10">
+        <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse flex-shrink-0" />
+        <span className="font-heading text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-orange">
+          Why this matters right now
+        </span>
+      </div>
+      {/* Stat rows */}
+      {stats.map((s, i) => (
+        <div key={s.label} className={`relative px-5 py-5 ${i < stats.length - 1 ? 'border-b border-white/10' : ''}`}>
+          <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-brand-orange opacity-60 rounded-r" />
+          <div className="font-heading text-4xl font-bold text-brand-orange leading-none mb-1">{s.value}{s.suffix}</div>
+          <div className="font-heading text-[11px] font-semibold uppercase tracking-wider text-white mb-1">{s.label}</div>
+          <p className="text-gray-500 text-xs leading-relaxed">{s.detail}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Video Section ─────────────────────────────────────────────────────────────
+function VideoSection() {
+  return (
+    <section className="bg-[#111] border-y border-white/10 py-16 px-6">
+      <div className="max-w-4xl mx-auto">
+        <p className="text-center font-heading text-xs font-semibold uppercase tracking-[0.15em] text-brand-orange mb-5">
+          Start Winning In AI Search
+        </p>
+        <div className="relative w-full rounded-xl overflow-hidden border border-brand-orange/20 shadow-[0_0_60px_rgba(255,33,15,0.1)]" style={{ paddingBottom: '56.25%' }}>
+          <style>{`wistia-player[media-id='m2kgo37bny']:not(:defined){background:center/contain no-repeat url('https://fast.wistia.com/embed/medias/m2kgo37bny/swatch');display:block;filter:blur(5px);padding-top:56.25%}`}</style>
+          <div className="absolute inset-0">
+            {/* eslint-disable-next-line @next/next/no-before-interactive-script-outside-document */}
+            <wistia-player media-id="m2kgo37bny" aspect="1.7777777777777777" style={{ width: '100%', height: '100%' }}></wistia-player>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Pain Stats (kept for reference, removed from page render) ────────────────
 function PainStats() {
   return (
     <section className="bg-[#111] border-y border-white/10 py-20 px-6">
