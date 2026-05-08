@@ -49,10 +49,10 @@ export default function ReviewSlider() {
   const r = REVIEWS[active];
 
   return (
-    <section className="relative px-6 py-24 bg-[#111] overflow-hidden">
+    <section className="relative px-6 py-24 bg-brand-page-dark overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-brand-orange/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] rounded-full blur-[120px] pointer-events-none" style={{background:'radial-gradient(ellipse, rgba(255,33,15,0.12) 0%, rgba(255,110,10,0.06) 50%, transparent 70%)'}} />
 
       <div className="relative max-w-4xl mx-auto">
         <div className="text-center mb-12">
@@ -64,9 +64,11 @@ export default function ReviewSlider() {
         </div>
 
         {/* Card */}
-        <div className="relative bg-[#1a1a1a] border border-white/10 rounded-2xl p-10 md:p-14 text-center min-h-[220px] flex flex-col items-center justify-center">
+        <div className="relative bg-brand-page-base border border-white/10 rounded-2xl p-10 md:p-14 text-center min-h-[220px] flex flex-col items-center justify-center overflow-hidden">
+          {/* Scarlet accent bar */}
+          <div className="absolute top-0 left-0 right-0 h-[3px]" style={{background:'linear-gradient(90deg, #FF210F, #FF6F0A, #FF210F)'}} />
           {/* Quote mark */}
-          <div className="absolute top-6 left-8 text-brand-orange/20 font-heading text-8xl leading-none select-none">"</div>
+          <div className="absolute top-6 left-8 text-brand-orange/30 font-heading text-8xl leading-none select-none">"</div>
 
           {/* Stars */}
           <div className="flex gap-1 justify-center mb-6">
@@ -77,13 +79,13 @@ export default function ReviewSlider() {
             ))}
           </div>
 
-          <p className="text-lg md:text-xl text-gray-200 leading-relaxed mb-8 max-w-2xl relative z-10">
+          <p className="text-lg md:text-xl text-white leading-relaxed mb-8 max-w-2xl relative z-10" style={{color:'rgba(255,255,255,0.93)'}}>
             "{r.quote}"
           </p>
 
           <div>
-            <p className="font-heading font-semibold text-white text-base">{r.author}</p>
-            <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">{r.source}</p>
+            <p className="font-heading font-semibold text-white text-base" style={{color:'white'}}>{r.author}</p>
+            <p className="text-xs text-brand-orange uppercase tracking-widest mt-1">{r.source}</p>
           </div>
         </div>
 
