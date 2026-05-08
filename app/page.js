@@ -6,7 +6,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-brand-page-base text-white overflow-x-hidden">
       <Header />
       <Hero />
       {/* <ScrollingTrustBanner /> */}{/* Awards banner hidden — restore when updated badge files are ready */}
@@ -25,7 +25,7 @@ export default function HomePage() {
 // ─── Header ──────────────────────────────────────────────────────────────────
 function Header() {
   return (
-    <header className="border-b border-white/10 px-6 py-4 sticky top-0 z-50 bg-[#1a1a1a]/95 backdrop-blur-sm">
+    <header className="border-b border-white/10 px-6 py-4 sticky top-0 z-50 bg-brand-page-base/95 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <a href="/" className="flex items-center gap-3">
           <img src="/brand/logo-white.png" alt="Abstrakt" className="dark-logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
@@ -120,7 +120,7 @@ function HeroStatsWidget() {
     { value: 50,  suffix: '%+', label: 'Drop in Impressions',     detail: 'AI answers push organic results below the fold.' },
   ];
   return (
-    <div className="lg:flex-shrink-0 lg:w-[300px] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#1e1e1e]/60 backdrop-blur-sm shadow-[0_0_60px_rgba(255,33,15,0.08)]">
+    <div className="lg:flex-shrink-0 lg:w-[300px] w-full rounded-2xl overflow-hidden border border-white/10 bg-brand-page-panel/60 backdrop-blur-sm shadow-[0_0_60px_rgba(255,33,15,0.08)]">
       {/* Header */}
       <div className="flex items-center gap-2 px-5 py-3.5 border-b border-white/10 bg-brand-orange/10">
         <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse flex-shrink-0" />
@@ -144,7 +144,7 @@ function HeroStatsWidget() {
 // ─── Video Section ─────────────────────────────────────────────────────────────
 function VideoSection() {
   return (
-    <section className="bg-[#111] border-y border-white/10 py-16 px-6">
+    <section className="bg-brand-page-dark border-y border-white/10 py-16 px-6">
       <div className="max-w-4xl mx-auto">
         <p className="text-center font-heading text-xs font-semibold uppercase tracking-[0.15em] text-brand-orange mb-5">
           Start Winning In AI Search
@@ -164,7 +164,7 @@ function VideoSection() {
 // ─── Pain Stats (kept for reference, removed from page render) ────────────────
 function PainStats() {
   return (
-    <section className="bg-[#111] border-y border-white/10 py-20 px-6">
+    <section className="bg-brand-page-dark border-y border-white/10 py-20 px-6">
       <div className="max-w-6xl mx-auto">
         <p className="text-center text-gray-400 text-xs uppercase tracking-[0.2em] font-heading mb-12">
           Why your competitors are pulling ahead right now
@@ -232,7 +232,7 @@ function PainPoints() {
           {pains.map((pain) => (
             <div
               key={pain.headline}
-              className="group relative bg-[#222] rounded-xl p-8 border border-white/10 hover:border-brand-orange/40 transition-all duration-300 overflow-hidden"
+              className="group relative bg-brand-page-card rounded-xl p-8 border border-white/10 hover:border-brand-orange/40 transition-all duration-300 overflow-hidden"
             >
               <div className="absolute inset-0 bg-brand-orange/0 group-hover:bg-brand-orange/[0.03] transition-colors duration-300 pointer-events-none rounded-xl" />
               {/* Glow border on hover */}
@@ -313,7 +313,7 @@ function ScrollingTrustBanner() {
   );
 
   return (
-    <div className="bg-[#111] border-y border-white/10 py-5 overflow-hidden">
+    <div className="bg-brand-page-dark border-y border-white/10 py-5 overflow-hidden">
       {/* Fade edges */}
       <div className="pointer-events-none absolute left-0 w-24 h-full bg-gradient-to-r from-[#111] to-transparent z-10" style={{ position: 'absolute' }} />
       <div className="pointer-events-none absolute right-0 w-24 h-full bg-gradient-to-l from-[#111] to-transparent z-10" style={{ position: 'absolute' }} />
@@ -407,7 +407,7 @@ function WhatYouGet() {
           {items.map((item) => (
             <div
               key={item.title}
-              className="group relative bg-[#1e1e1e] rounded-xl border border-white/10 hover:border-brand-orange/50 transition-all duration-300 overflow-hidden flex flex-col"
+              className="group relative bg-brand-page-panel rounded-xl border border-white/10 hover:border-brand-orange/50 transition-all duration-300 overflow-hidden flex flex-col"
             >
               <div className="h-[3px] w-full bg-gradient-to-r from-brand-orange/0 via-brand-orange to-brand-orange/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="p-7 flex flex-col gap-4 flex-1">
@@ -457,7 +457,7 @@ function TrustBar() {
   ];
 
   return (
-    <section className="relative px-6 py-20 bg-[#111] overflow-hidden">
+    <section className="relative px-6 py-20 bg-brand-page-dark overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
       <div className="max-w-6xl mx-auto">
@@ -515,7 +515,7 @@ function FinalCTA() {
 // ─── Grow Zone Banner ─────────────────────────────────────────────────────────
 function GrowZoneBanner() {
   return (
-    <div className="bg-[#111] border-t border-white/10 px-6 py-6">
+    <div className="bg-brand-page-dark border-t border-white/10 px-6 py-6">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-gray-400 text-center sm:text-left">
           Want to learn more about AI visibility and SEO?
@@ -539,7 +539,7 @@ function GrowZoneBanner() {
 // ─── Footer ───────────────────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer className="px-6 py-8 border-t border-white/10 bg-[#111]">
+    <footer className="px-6 py-8 border-t border-white/10 bg-brand-page-dark">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <p className="text-gray-400 text-sm">
           © {new Date().getFullYear()} Abstrakt. All rights reserved.
