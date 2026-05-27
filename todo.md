@@ -1,22 +1,20 @@
-# Light Mode White Text Fix
+# Fix: Results Share Links Failing on Cold Start
 
 ## Problem
-In light mode, some text remained white and became invisible against light backgrounds.
+app/api/share/route.js uses an in-memory Map for storage.
+Vercel serverless instances go cold and wipe the Map — share links 404 and redirect to /assess.
 
-## Root Cause
-A 5-line override block at the bottom of `app/globals.css` forced `.text-white` to stay white (`!important`) inside `.bg-brand-page-dark` and `.bg-brand-page-base`. Those backgrounds, however, are themselves switched to white/light gray in light mode (lines 84–86), so the override produced white text on white backgrounds. The correct global rule (`html.light .text-white { color: #111827; }`) already existed on line 71 — it was just being overridden.
+## Fix
+Swap in-memory Map for Vercel Blob (persistent object storage).
 
-## Changes Made
-- [x] Removed the broken "Review slider stays dark" override block from `app/globals.css`.
-- [x] Confirmed `.text-gray-400` override inside that block was redundant with line 115 — no replacement needed.
-- [x] `npm run build` — clean, no errors.
-- [x] Committed and pushed to `main`.
+## Todo
+- [x] Install @vercel/blob
+- [x] Rewrite app/api/share/route.js to use Blob instead of Map
+- [x] npm run build verify
+- [x] Push to main
 
 ## Review
-**Files touched:** 1 (`app/globals.css`)
-**Lines removed:** 6
-**Lines added:** 0
-
-The fix relies on the global `html.light .text-white { color: #111827; }` rule that was already in place. With the overriding block gone, all `.text-white` elements correctly switch to dark gray (#111827) in light mode, regardless of their parent background.
-
-**Risk:** Low. No component files changed, no new logic introduced. The removed block's stated purpose ("review slider stays dark") was already non-functional — the review slider uses `bg-brand-page-base`, which becomes light in light mode anyway, so this block wasn't actually preserving any dark-section contrast.
+- Only one file changed: app/api/share/route.js
+- POST now calls put() to write a JSON blob keyed by UUID
+- GET now calls list()+fetch() to read the blob back
+- Requires BLOB_READ_WRITE_TOKEN env var in Vercel dashboard (see instructions)
