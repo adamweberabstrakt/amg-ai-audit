@@ -125,3 +125,58 @@ html.light .report-actions-section {
   background-color: #f9fafb;
   border-color: #e5e7eb;
 }
+
+
+/* ── Light mode: assessment form fields ── */
+html.light .assessment-form input,
+html.light .assessment-form textarea {
+  background-color: #ffffff;
+  color: #111827;
+  border-color: #d1d5db;
+}
+html.light .assessment-form input::placeholder,
+html.light .assessment-form textarea::placeholder {
+  color: #9ca3af;
+}
+html.light .assessment-form select {
+  background-color: #ffffff;
+  color: #111827;
+  border-color: #d1d5db;
+}
+html.light .assessment-form select option {
+  background-color: #ffffff;
+  color: #111827;
+}
+/* IconField wrapper — dark bg container */
+html.light .assessment-form .bg-\[#222\] {
+  background-color: #ffffff !important;
+}
+html.light .assessment-form .border-white\/20 {
+  border-color: #d1d5db !important;
+}
+html.light .assessment-form .border-white\/15 {
+  border-color: #e5e7eb !important;
+}
+/* Icon select buttons unselected state */
+html.light .assessment-form button:not([class*="brand-orange"]):not([class*="green"]):not([class*="btn-primary"]) {
+  background-color: #f9fafb;
+  color: #374151;
+}
+html.light .assessment-form button:not([class*="brand-orange"]):not([class*="green"]):not([class*="btn-primary"]):hover {
+  background-color: #f3f4f6;
+}
+/* Step progress unselected dots */
+html.light .assessment-form .bg-white\/10 {
+  background-color: #e5e7eb !important;
+}
+html.light .assessment-form .text-gray-600 {
+  color: #4b5563;
+}
+/* Labels */
+html.light .assessment-form label,
+html.light .assessment-form .text-gray-300 {
+  color: #374151;
+}
+html.light .assessment-form .text-gray-400 {
+  color: #6b7280;
+}

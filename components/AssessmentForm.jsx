@@ -187,7 +187,7 @@ export default function AssessmentForm() {
   if (isLoading) return <AuditLoading />;
 
   return (
-    <div className="min-h-screen px-6 py-12">
+    <div className="assessment-form min-h-screen px-6 py-12">
       <div className="max-w-2xl mx-auto">
         <StepProgress current={step} total={TOTAL_STEPS} />
 
