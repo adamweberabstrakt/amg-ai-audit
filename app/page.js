@@ -546,8 +546,8 @@ function Footer() {
         </p>
         <div className="flex items-center gap-6 text-xs text-gray-700">
           <a href="https://www.abstraktmg.com" className="hover:text-gray-400 transition-colors">abstraktmg.com</a>
-          <a href="https://www.abstraktmg.com/privacy-policy" className="hover:text-gray-400 transition-colors">Privacy Policy</a>
-          <a href="https://www.abstraktmg.com/terms" className="hover:text-gray-400 transition-colors">Terms</a>
+          <a href="/privacy" className="hover:text-gray-400 transition-colors">Privacy Policy</a>
+          <a href="/terms" className="hover:text-gray-400 transition-colors">Terms of Service</a>
         </div>
       </div>
     </footer>

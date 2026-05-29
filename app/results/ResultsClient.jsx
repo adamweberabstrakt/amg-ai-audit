@@ -246,6 +246,18 @@ export default function ResultsClient() {
       {/* Booking CTA — always show */}
       <BookingCTA score={score} leadData={leadData} onOpen={() => setSchedulerOpen(true)} />
 
+      {/* Results footer — disclaimer + legal links */}
+      <div className="max-w-7xl mx-auto px-6 py-6 border-t border-white/10 mt-4">
+        <p className="text-xs text-gray-600 text-center mb-3">
+          Scores are estimates based on publicly available data and AI analysis. They are not endorsed by Google, OpenAI, or any AI platform and do not constitute professional marketing advice.
+        </p>
+        <div className="flex items-center justify-center gap-6 text-xs text-gray-700">
+          <a href="https://www.abstraktmg.com" className="hover:text-gray-500 transition-colors">abstraktmg.com</a>
+          <a href="/privacy" className="hover:text-gray-500 transition-colors">Privacy Policy</a>
+          <a href="/terms" className="hover:text-gray-500 transition-colors">Terms of Service</a>
+        </div>
+      </div>
+
       {/* ChiliPiper scheduling modal */}
       <ChiliPiperModal isOpen={schedulerOpen} onClose={() => setSchedulerOpen(false)} />
 

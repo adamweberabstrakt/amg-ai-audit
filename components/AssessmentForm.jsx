@@ -224,10 +224,10 @@ export default function AssessmentForm() {
         </div>
       </div>
       <p className="text-center text-xs text-gray-600 mt-4">
-        By submitting, you agree to our{' '}
-        <a href="https://www.abstraktmg.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400 transition-colors">Privacy Policy</a>
+        By submitting, you consent to being contacted by Abstrakt and agree to our{' '}
+        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400 transition-colors">Privacy Policy</a>
         {' '}and{' '}
-        <a href="https://www.abstraktmg.com/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400 transition-colors">Terms of Service</a>.
+        <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400 transition-colors">Terms of Service</a>.
       </p>
       <style>{`@keyframes stepFadeIn { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }`}</style>
     </div>
