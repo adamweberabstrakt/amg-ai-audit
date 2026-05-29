@@ -167,7 +167,7 @@ function AIMentionPanel({ mention }) {
 
       {mention === false && (
         <div className="card border border-white/10 py-5 text-center">
-          <p className="text-gray-500 text-sm">AI mention check unavailable — request timed out or the OpenAI API returned an error.</p>
+          <p className="text-gray-500 text-sm">AI mention check unavailable — request timed out.</p>
         </div>
       )}
 
