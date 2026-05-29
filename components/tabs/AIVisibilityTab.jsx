@@ -167,7 +167,15 @@ function AIMentionPanel({ mention }) {
 
       {mention === false && (
         <div className="card border border-white/10 py-5 text-center">
-          <p className="text-gray-500 text-sm">AI mention check unavailable — OPENAI_API_KEY not configured or request timed out.</p>
+          <p className="text-gray-500 text-sm">AI mention check unavailable — request timed out or the OpenAI API returned an error.</p>
+        </div>
+      )}
+
+      {mention && mention !== false && !mention.responseText && mention.error && (
+        <div className="card border border-red-500/30 bg-red-950/20 py-5">
+          <p className="text-red-300 text-sm font-medium mb-1">OpenAI API Error</p>
+          <p className="text-gray-400 text-xs">{mention.error}</p>
+          {mention.query && <p className="text-gray-500 text-xs mt-2">Query: "{mention.query}"</p>}
         </div>
       )}
     </div>

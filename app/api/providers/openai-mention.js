@@ -33,8 +33,14 @@ export async function runOpenAIMention({ company, industry, placesData }) {
 
     if (!res.ok) {
       const err = await res.text();
-      console.warn('[openai-mention] API error:', res.status, err.slice(0, 200));
-      return null;
+      console.warn('[openai-mention] API error:', res.status, err.slice(0, 300));
+      // Return a partial result so the UI can show the actual error rather than silent null
+      try {
+        const errJson = JSON.parse(err);
+        return { error: errJson?.error?.message ?? `API error ${res.status}`, mentioned: false, query };
+      } catch {
+        return { error: `API error ${res.status}`, mentioned: false, query };
+      }
     }
 
     const data = await res.json();

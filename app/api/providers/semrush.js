@@ -1,10 +1,11 @@
 // app/api/providers/semrush.js
-// Fetches top 5 transactional competitor keywords + domain authority comparison.
-// Uses SEMRush Export API (v1).
+// Fetches domain authority + organic metrics + competitor keywords.
+// Uses SEMRush Analytics API (v1 for backlinks, base for organic).
 // Requires SEMRUSH_API_KEY env var.
 
-const BASE = 'https://api.semrush.com/';
-const KEY  = process.env.SEMRUSH_API_KEY;
+const BASE     = 'https://api.semrush.com/';
+const BASE_V1  = 'https://api.semrush.com/analytics/v1/';
+const KEY      = process.env.SEMRUSH_API_KEY;
 
 // ─── Public entry point ───────────────────────────────────────────────────────
 export async function runSemrush({ website, competitors = [] }) {
@@ -72,19 +73,48 @@ function computeBacklinkGaps(clientRefDomains, competitorData) {
   });
 }
 
-// ─── Domain stats (traffic, keyword count, authority score) ───────────────────
+// ─── Domain stats: organic metrics from domain_ranks + authority from backlinks_overview ─
 async function getDomainStats(domain) {
   if (!domain) return null;
-  const params = new URLSearchParams({
-    type:            'domain_ranks',
-    key:             KEY,
-    export_columns:  'Dn,Rk,Or,Ot,Oc,Ad,Sh',  // Sh = Authority Score (not Rk which is SEMRush Rank)
-    domain,
-    database:        'us',
-  });
-  const res  = await fetch(`${BASE}?${params}`);
-  const text = await res.text();
-  return parseDomainRanks(text, domain);
+
+  // Call both endpoints in parallel — domain_ranks has organic data, backlinks_overview has authority score
+  const [ranksRes, aScoreRes] = await Promise.allSettled([
+    fetch(`${BASE}?${new URLSearchParams({
+      type:           'domain_ranks',
+      key:            KEY,
+      export_columns: 'Dn,Rk,Or,Ot,Oc,Ad',
+      domain,
+      database:       'us',
+    })}`).then(r => r.text()),
+    fetch(`${BASE_V1}?${new URLSearchParams({
+      type:        'backlinks_overview',
+      key:         KEY,
+      target:      domain,
+      target_type: 'root_domain',
+      export_columns: 'ascore,domains_num',
+    })}`).then(r => r.text()),
+  ]);
+
+  const ranksText  = ranksRes.status  === 'fulfilled' ? ranksRes.value  : '';
+  const aScoreText = aScoreRes.status === 'fulfilled' ? aScoreRes.value : '';
+
+  // Parse organic metrics from domain_ranks
+  const organic = parseDomainRanks(ranksText, domain);
+
+  // Parse authority score from backlinks_overview
+  // Response: "ascore;domains_num\n74;49145"
+  let authorityScore = 0;
+  const aLines = aScoreText.trim().split('\n');
+  if (aLines.length >= 2) {
+    const headers = aLines[0].split(';');
+    const values  = aLines[1].split(';');
+    const row = {};
+    headers.forEach((h, i) => { row[h.trim()] = (values[i] ?? '').trim(); });
+    authorityScore = parseInt(row['ascore'] ?? '0', 10) || 0;
+  }
+
+  if (!organic) return null;
+  return { ...organic, authorityScore };
 }
 
 // ─── Competitor: keywords + domain stats + backlink gaps ─────────────────────
@@ -148,11 +178,10 @@ function parseDomainRanks(text, domain) {
   headers.forEach((h, i) => { row[h.trim()] = (values[i] ?? '').trim(); });
   return {
     domain,
-    // Sh = Authority Score (0–100). Rk = SEMRush Rank (popularity rank, NOT authority).
-    authorityScore:   parseInt(row['Sh']  ?? '0', 10),
-    organicKeywords:  parseInt(row['Or']  ?? '0', 10),
-    organicTraffic:   parseInt(row['Ot']  ?? '0', 10),
-    paidKeywords:     parseInt(row['Ad']  ?? '0', 10),
+    authorityScore:   0,   // populated by getDomainStats from backlinks_overview
+    organicKeywords:  parseInt(row['Or']  ?? '0', 10) || 0,
+    organicTraffic:   parseInt(row['Ot']  ?? '0', 10) || 0,
+    paidKeywords:     parseInt(row['Ad']  ?? '0', 10) || 0,
   };
 }
 
