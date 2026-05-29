@@ -23,7 +23,8 @@ export default function ResultsClient() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [schedulerOpen, setSchedulerOpen] = useState(false);
   const hasShownAutoPopup = useRef(false);
-  const gtmetrixFetchFired = useRef(false);  // prevent re-firing on state updates
+  const gtmetrixFetchFired     = useRef(false);  // prevent re-firing on state updates
+  const openaiMentionFired     = useRef(false);  // same guard for AI mention fetch
   const popupTimer        = useRef(null);
 
   useEffect(() => {
@@ -87,7 +88,30 @@ export default function ResultsClient() {
       });
   }, [auditData]);
 
-  // Auto-popup: fires once 45s after audit data is loaded
+  // Lazy-load OpenAI mention check after audit data is ready.
+  // null = loading, false = done/no data, obj = result
+  useEffect(() => {
+    if (!auditData) return;
+    if (openaiMentionFired.current) return;
+    if (auditData.openaiMention !== null) return; // share replay already has data
+    const company  = auditData?.meta?.company;
+    const industry = auditData?.meta?.industry;
+    if (!company || !industry) return;
+
+    openaiMentionFired.current = true;
+
+    const params = new URLSearchParams({ company, industry });
+    if (auditData?.meta?.placesAddress) params.set('address', auditData.meta.placesAddress);
+
+    fetch(`/api/aimention?${params}`)
+      .then(r => r.ok ? r.json() : { openaiMention: null })
+      .then(({ openaiMention }) => {
+        setAuditData(prev => prev ? { ...prev, openaiMention: openaiMention ?? false } : prev);
+      })
+      .catch(() => {
+        setAuditData(prev => prev ? { ...prev, openaiMention: false } : prev);
+      });
+  }, [auditData]);
   useEffect(() => {
     if (!auditData || hasShownAutoPopup.current) return;
     popupTimer.current = setTimeout(() => {

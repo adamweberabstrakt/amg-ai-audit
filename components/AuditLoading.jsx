@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 
 const LOADING_STEPS = [
-  { label: 'Analyzing your website performance',   duration: 4000 },
-  { label: 'Checking your local search presence',  duration: 4000 },
-  { label: 'Crawling site structure & signals',    duration: 5000 },
-  { label: 'Running AI visibility analysis',       duration: 6000 },
-  { label: 'Generating your personalized report',  duration: 3000 },
+  { label: 'Analyzing your website performance',     duration: 4000 },
+  { label: 'Checking your local search presence',    duration: 4000 },
+  { label: 'Crawling site structure & signals',      duration: 5000 },
+  { label: 'Running AI visibility analysis',         duration: 6000 },
+  { label: 'Checking if ChatGPT mentions you',       duration: 4000 },
+  { label: 'Generating your personalized report',    duration: 3000 },
 ];
 
 const LOADING_FACTS = [
