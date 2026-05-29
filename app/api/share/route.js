@@ -24,6 +24,10 @@ export async function POST(req) {
     const rawId = body.id;
     const id = (rawId && /^[0-9a-f-]{36}$/i.test(rawId)) ? rawId : randomUUID();
 
+    // Log token format for diagnostics (first 20 chars only, never full token)
+    const token = process.env.BLOB_READ_WRITE_TOKEN ?? '';
+    console.log('[share] token prefix:', token.slice(0, 20), '— expected format: vercel_blob_rw_STOREID_...');
+
     await put(`audits/${id}.json`, JSON.stringify(body), {
       access:      'public',
       contentType: 'application/json',
@@ -31,7 +35,9 @@ export async function POST(req) {
 
     return NextResponse.json({ id });
   } catch (err) {
-    console.error('[share] PUT failed:', err?.message ?? err);
+    console.error('[share] PUT failed — full error:', err?.message ?? err);
+    console.error('[share] This usually means the Blob store is not connected to this project.');
+    console.error('[share] Fix: Vercel dashboard → Storage → your blob store → Projects tab → add this project');
     return NextResponse.json({ error: 'Failed to save results' }, { status: 500 });
   }
 }
