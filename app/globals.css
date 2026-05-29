@@ -180,3 +180,9 @@ html.light .assessment-form .text-gray-300 {
 html.light .assessment-form .text-gray-400 {
   color: #6b7280;
 }
+
+/* ── Light mode: booking sidebar panels ── */
+html.light .bg-\[#1e1e1e\] {
+  background-color: #f3f4f6 !important;
+  border-color: #e5e7eb !important;
+}
