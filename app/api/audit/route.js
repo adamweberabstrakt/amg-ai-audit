@@ -99,7 +99,7 @@ export async function POST(req) {
     const [pageSpeedData, crawlData, placesData, semrushData] = await Promise.allSettled([
       runPageSpeed(url),
       runCrawl(url),
-      runPlaces(cleanCompany),
+      runPlaces(cleanCompany, url),
       runSemrush({ website: url, competitors: cleanCompetitors }),
     ]);
 

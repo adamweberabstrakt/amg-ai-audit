@@ -78,7 +78,7 @@ async function getDomainStats(domain) {
   const params = new URLSearchParams({
     type:            'domain_ranks',
     key:             KEY,
-    export_columns:  'Dn,Rk,Or,Ot,Oc,Ad',
+    export_columns:  'Dn,Rk,Or,Ot,Oc,Ad,Sh',  // Sh = Authority Score (not Rk which is SEMRush Rank)
     domain,
     database:        'us',
   });
@@ -148,7 +148,8 @@ function parseDomainRanks(text, domain) {
   headers.forEach((h, i) => { row[h.trim()] = (values[i] ?? '').trim(); });
   return {
     domain,
-    authorityScore:   parseInt(row['Rk']  ?? '0', 10),
+    // Sh = Authority Score (0–100). Rk = SEMRush Rank (popularity rank, NOT authority).
+    authorityScore:   parseInt(row['Sh']  ?? '0', 10),
     organicKeywords:  parseInt(row['Or']  ?? '0', 10),
     organicTraffic:   parseInt(row['Ot']  ?? '0', 10),
     paidKeywords:     parseInt(row['Ad']  ?? '0', 10),
