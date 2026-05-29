@@ -38,8 +38,8 @@ export default function ResultsClient() {
           setLeadData(saved.leadData);
           setShareUrl(window.location.href);
         } catch {
-          // Share route uses in-memory storage that resets on cold containers —
-          // fall back to sessionStorage before giving up
+          // Blob not configured or result expired — fall back to sessionStorage
+          // (sessionStorage only works for the original submitter, not shared link visitors)
           const audit = sessionStorage.getItem('auditResults');
           const lead  = sessionStorage.getItem('leadData');
           if (audit && lead) {

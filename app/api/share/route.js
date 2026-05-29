@@ -1,17 +1,27 @@
 // app/api/share/route.js
 // Stores audit results in Vercel Blob (persistent across cold starts).
-// Requires BLOB_READ_WRITE_TOKEN env var — set in Vercel dashboard under Storage > Blob.
+// Requires BLOB_READ_WRITE_TOKEN — create a Blob store in Vercel dashboard > Storage.
+// If Blob is not configured, POST returns 503 so the client knows sharing is unavailable.
 
 import { NextResponse } from 'next/server';
 import { put, head }    from '@vercel/blob';
 import { randomUUID }   from 'crypto';
 
+function blobConfigured() {
+  return !!process.env.BLOB_READ_WRITE_TOKEN;
+}
+
 // POST /api/share  — save audit data, return { id }
 export async function POST(req) {
+  if (!blobConfigured()) {
+    console.error('[share] BLOB_READ_WRITE_TOKEN not set — Vercel Blob not configured');
+    return NextResponse.json({ error: 'Share storage not configured' }, { status: 503 });
+  }
+
   try {
     const body = await req.json();
-    // Validate or generate ID — only allow UUID-shaped values to prevent path traversal
     const rawId = body.id;
+    // Only allow UUID-shaped values to prevent path traversal
     const id = (rawId && /^[0-9a-f-]{36}$/i.test(rawId)) ? rawId : randomUUID();
 
     await put(`audits/${id}.json`, JSON.stringify(body), {
@@ -32,9 +42,12 @@ export async function GET(req) {
   const id = searchParams.get('id');
 
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
-  // Validate ID shape to prevent path traversal in blob key
   if (!/^[0-9a-f-]{36}$/i.test(id)) {
     return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
+  }
+
+  if (!blobConfigured()) {
+    return NextResponse.json({ error: 'Share storage not configured' }, { status: 503 });
   }
 
   try {
