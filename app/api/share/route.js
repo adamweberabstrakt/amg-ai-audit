@@ -1,43 +1,37 @@
 // app/api/share/route.js
-// Stores audit results in Vercel Blob.
-// Requires BLOB_READ_WRITE_TOKEN — create a Blob store in Vercel dashboard > Storage,
-// then ensure the store is connected to this project.
+// Stores audit results in Vercel KV.
+// Requires KV_REST_API_URL + KV_REST_API_TOKEN env vars.
+// Connect the KV store to this project in Vercel dashboard → Storage → your store → Projects.
+// Keys are prefixed "audit:" to avoid collision with other apps sharing the same store.
+// TTL: 90 days.
 
 import { NextResponse } from 'next/server';
-import { put, head }    from '@vercel/blob';
-import { randomUUID }   from 'crypto';
+import { kv }          from '@vercel/kv';
+import { randomUUID }  from 'crypto';
 
-function blobConfigured() {
-  // Accept any non-empty token — don't enforce format, Vercel handles auth
-  return !!(process.env.BLOB_READ_WRITE_TOKEN ?? '').trim();
+const TTL_SECONDS = 60 * 60 * 24 * 90; // 90 days
+
+function kvConfigured() {
+  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 }
 
 // POST /api/share  — save audit data, return { id }
 export async function POST(req) {
-  if (!blobConfigured()) {
-    console.error('[share] BLOB_READ_WRITE_TOKEN not set');
+  if (!kvConfigured()) {
+    console.error('[share] KV_REST_API_URL or KV_REST_API_TOKEN not set');
     return NextResponse.json({ error: 'Share storage not configured' }, { status: 503 });
   }
 
   try {
-    const body = await req.json();
+    const body  = await req.json();
     const rawId = body.id;
-    const id = (rawId && /^[0-9a-f-]{36}$/i.test(rawId)) ? rawId : randomUUID();
+    const id    = (rawId && /^[0-9a-f-]{36}$/i.test(rawId)) ? rawId : randomUUID();
 
-    // Log token format for diagnostics (first 20 chars only, never full token)
-    const token = process.env.BLOB_READ_WRITE_TOKEN ?? '';
-    console.log('[share] token prefix:', token.slice(0, 20), '— expected format: vercel_blob_rw_STOREID_...');
-
-    await put(`audits/${id}.json`, JSON.stringify(body), {
-      access:      'public',
-      contentType: 'application/json',
-    });
+    await kv.set(`audit:${id}`, body, { ex: TTL_SECONDS });
 
     return NextResponse.json({ id });
   } catch (err) {
-    console.error('[share] PUT failed — full error:', err?.message ?? err);
-    console.error('[share] This usually means the Blob store is not connected to this project.');
-    console.error('[share] Fix: Vercel dashboard → Storage → your blob store → Projects tab → add this project');
+    console.error('[share] KV set failed:', err?.message ?? err);
     return NextResponse.json({ error: 'Failed to save results' }, { status: 500 });
   }
 }
@@ -52,18 +46,16 @@ export async function GET(req) {
     return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
   }
 
-  if (!blobConfigured()) {
+  if (!kvConfigured()) {
     return NextResponse.json({ error: 'Share storage not configured' }, { status: 503 });
   }
 
   try {
-    const blob = await head(`audits/${id}.json`);
-    const res  = await fetch(blob.url);
-    if (!res.ok) throw new Error('fetch failed');
-    const data = await res.json();
+    const data = await kv.get(`audit:${id}`);
+    if (!data) return NextResponse.json({ error: 'Not found or expired' }, { status: 404 });
     return NextResponse.json(data);
   } catch (err) {
-    console.error('[share] GET failed:', err?.message ?? err);
+    console.error('[share] KV get failed:', err?.message ?? err);
     return NextResponse.json({ error: 'Not found or expired' }, { status: 404 });
   }
 }
