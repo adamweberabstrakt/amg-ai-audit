@@ -173,7 +173,8 @@ export default function AssessmentForm() {
       // (share route uses in-memory storage that resets on cold serverless containers)
       sessionStorage.setItem('auditResults', JSON.stringify(auditData));
       sessionStorage.setItem('leadData', JSON.stringify(payload));
-      fetch('/api/share', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id:shareId, auditData, leadData:payload }) }).catch(()=>{});
+      // Await the share save so the blob exists before ResultsClient fetches it
+      await fetch('/api/share', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id:shareId, auditData, leadData:payload }) }).catch(()=>{});
       sessionStorage.removeItem('assessmentFormData');
       router.push(`/results?id=${shareId}`);
     } catch (err) {
