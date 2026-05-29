@@ -47,6 +47,7 @@ export default function AssessmentForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [utmParams, setUtmParams] = useState({});
   const [errors, setErrors]   = useState({});
+  const [visibleCompetitorSlots, setVisibleCompetitorSlots] = useState(2);
   const formOpenTime = useState(() => Date.now())[0];
   const honeypotRef  = useRef(null);
 
@@ -93,13 +94,8 @@ export default function AssessmentForm() {
   }
 
   function addCompetitor() {
-    const visibleCount = formData.competitors.filter(Boolean).length;
-    if (visibleCount < 4) {
-      // Find first empty slot
-      const emptyIndex = formData.competitors.findIndex(comp => !comp);
-      if (emptyIndex !== -1) {
-        // Focus will be added automatically when the input appears
-      }
+    if (visibleCompetitorSlots < 4) {
+      setVisibleCompetitorSlots(n => n + 1);
     }
   }
 
@@ -200,7 +196,7 @@ export default function AssessmentForm() {
           {step === 2 && <Step2 formData={formData} update={update} errors={errors} />}
           {step === 3 && <Step3 formData={formData} update={update} toggleAITool={toggleAITool} 
                                  updateCompetitor={updateCompetitor} addCompetitor={addCompetitor} 
-                                 toggleVideoChannel={toggleVideoChannel} />}
+                                 toggleVideoChannel={toggleVideoChannel} visibleCompetitorSlots={visibleCompetitorSlots} />}
         </div>
 
         <div className="flex justify-between mt-8">
@@ -359,10 +355,9 @@ function Step2({ formData, update, errors }) {
 }
 
 // ─── Step 3: Brand Maturity ───────────────────────────────────────────────────
-function Step3({ formData, update, toggleAITool, updateCompetitor, addCompetitor, toggleVideoChannel }) {
+function Step3({ formData, update, toggleAITool, updateCompetitor, addCompetitor, toggleVideoChannel, visibleCompetitorSlots }) {
   const pct = ((formData.brandRating - 1) / 4) * 100;
-  const visibleCompetitors = formData.competitors.filter((comp, i) => comp || i < 2); // Always show first 2
-  const canAddMore = visibleCompetitors.length < 4 && formData.competitors.filter(Boolean).length < 4;
+  const canAddMore = visibleCompetitorSlots < 4;
   
   return (
     <div>
@@ -426,14 +421,14 @@ function Step3({ formData, update, toggleAITool, updateCompetitor, addCompetitor
       )}
 
       <Field label="Top competitor URLs (optional)">
-        {visibleCompetitors.map((_, index) => (
+        {Array.from({ length: visibleCompetitorSlots }).map((_, index) => (
           <IconField key={index} icon={<GlobeIcon />}>
-            <input 
-              type="url" 
-              value={formData.competitors[index]} 
+            <input
+              type="url"
+              value={formData.competitors[index]}
               onChange={(e) => updateCompetitor(index, e.target.value)}
-              placeholder={`https://competitor${index + 1}.com`} 
-              className={index < visibleCompetitors.length - 1 ? "mb-3" : ""} 
+              placeholder={`https://competitor${index + 1}.com`}
+              className={index < visibleCompetitorSlots - 1 ? "mb-3" : ""}
             />
           </IconField>
         ))}
