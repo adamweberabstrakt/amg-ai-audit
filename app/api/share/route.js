@@ -10,7 +10,9 @@ import { randomUUID }   from 'crypto';
 export async function POST(req) {
   try {
     const body = await req.json();
-    const id   = body.id ?? randomUUID();
+    // Validate or generate ID — only allow UUID-shaped values to prevent path traversal
+    const rawId = body.id;
+    const id = (rawId && /^[0-9a-f-]{36}$/i.test(rawId)) ? rawId : randomUUID();
 
     await put(`audits/${id}.json`, JSON.stringify(body), {
       access:      'public',
@@ -30,6 +32,10 @@ export async function GET(req) {
   const id = searchParams.get('id');
 
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+  // Validate ID shape to prevent path traversal in blob key
+  if (!/^[0-9a-f-]{36}$/i.test(id)) {
+    return NextResponse.json({ error: 'Invalid id' }, { status: 400 });
+  }
 
   try {
     const blob = await head(`audits/${id}.json`);

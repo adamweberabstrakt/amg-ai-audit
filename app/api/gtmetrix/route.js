@@ -17,8 +17,16 @@ export async function GET(req) {
       return NextResponse.json({ error: 'Missing url param' }, { status: 400 });
     }
 
-    // Basic sanity check — must be a plausible URL
-    try { new URL(url.startsWith('http') ? url : `https://${url}`); }
+    // Basic sanity check — must be a plausible URL with no private/internal host
+    try {
+      const parsed = new URL(url.startsWith('http') ? url : `https://${url}`);
+      // SSRF guard: block private/internal IP ranges and localhost
+      if (/^(localhost|.*\.local|.*\.internal)$/i.test(parsed.hostname) ||
+          /^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|169\.254\.|127\.)/.test(parsed.hostname) ||
+          /^(\[::1\]|::1|\[fe80)/i.test(parsed.hostname)) {
+        return NextResponse.json({ error: 'Invalid url' }, { status: 400 });
+      }
+    }
     catch { return NextResponse.json({ error: 'Invalid url' }, { status: 400 }); }
 
     const data = await runGTMetrix(url);

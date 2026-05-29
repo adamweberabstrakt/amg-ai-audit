@@ -30,7 +30,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('[pdf] Generation error:', error);
     return NextResponse.json(
-      { error: 'PDF generation failed', details: error.message },
+      { error: 'PDF generation failed' },
       { status: 500 },
     );
   }

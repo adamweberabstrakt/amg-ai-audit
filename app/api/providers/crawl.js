@@ -4,7 +4,28 @@
 
 import * as cheerio from 'cheerio';
 
+// SSRF guard: block requests to private/internal IP ranges and localhost
+function isPrivateHost(hostname) {
+  // Reject obvious localhost and internal hostnames
+  if (/^(localhost|.*\.local|.*\.internal)$/i.test(hostname)) return true;
+  // Reject private IPv4 ranges: 10.x, 172.16-31.x, 192.168.x, 169.254.x, 127.x
+  if (/^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|169\.254\.|127\.)/.test(hostname)) return true;
+  // Reject IPv6 loopback and link-local
+  if (/^(\[::1\]|::1|\[fe80)/i.test(hostname)) return true;
+  return false;
+}
+
 export async function runCrawl(url) {
+  // SSRF check — deny private/internal targets before making any network request
+  try {
+    const parsed = new URL(url);
+    if (isPrivateHost(parsed.hostname)) {
+      throw new Error('Blocked: private or internal URL');
+    }
+  } catch (err) {
+    throw new Error(`Invalid or blocked URL: ${err.message}`);
+  }
+
   const res = await fetch(url, {
     headers: { 'User-Agent': 'AbstraktAIVisibilityBot/1.0' },
     signal: AbortSignal.timeout(10000),

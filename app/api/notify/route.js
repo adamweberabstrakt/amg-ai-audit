@@ -56,6 +56,17 @@ export async function POST(req) {
   }
 }
 
+// ─── HTML escape helper — prevents XSS when interpolating user input into email HTML ───
+function esc(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 // ─── Teams Integration ────────────────────────────────────────────────────────
 async function sendTeamsNotification(type, data) {
   const webhookUrl = process.env.TEAMS_WEBHOOK_URL;
@@ -189,16 +200,16 @@ function buildEmailContent(type, data) {
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
           <h2 style="color: #FF210F; margin: 0 0 15px 0;">🎯 New AI Audit Completed</h2>
           <table style="width: 100%; border-collapse: collapse;">
-            <tr><td style="padding: 5px 0; font-weight: bold;">Company:</td><td>${data.company}</td></tr>
-            <tr><td style="padding: 5px 0; font-weight: bold;">Website:</td><td>${data.website}</td></tr>
-            <tr><td style="padding: 5px 0; font-weight: bold;">Contact:</td><td>${data.firstName} ${data.lastName}</td></tr>
-            <tr><td style="padding: 5px 0; font-weight: bold;">Email:</td><td>${data.email}</td></tr>
-            <tr><td style="padding: 5px 0; font-weight: bold;">AI Score:</td><td><strong>${data.score}/100</strong></td></tr>
-            <tr><td style="padding: 5px 0; font-weight: bold;">Urgency:</td><td>${data.urgency}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Company:</td><td>${esc(data.company)}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Website:</td><td>${esc(data.website)}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Contact:</td><td>${esc(data.firstName)} ${esc(data.lastName)}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Email:</td><td>${esc(data.email)}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">AI Score:</td><td><strong>${esc(String(data.score))}/100</strong></td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Urgency:</td><td>${esc(data.urgency)}</td></tr>
           </table>
         </div>
         <p style="text-align: center;">
-          <a href="${data.resultsUrl}" style="background: #FF210F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+          <a href="${esc(data.resultsUrl)}" style="background: #FF210F; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
             View Full Results
           </a>
         </p>
@@ -215,13 +226,13 @@ function buildEmailContent(type, data) {
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
           <h2 style="color: #FF210F; margin: 0 0 15px 0;">📝 New Lead Captured</h2>
           <table style="width: 100%; border-collapse: collapse;">
-            <tr><td style="padding: 5px 0; font-weight: bold;">Company:</td><td>${data.company}</td></tr>
-            <tr><td style="padding: 5px 0; font-weight: bold;">Contact:</td><td>${data.firstName} ${data.lastName}</td></tr>
-            <tr><td style="padding: 5px 0; font-weight: bold;">Email:</td><td>${data.email}</td></tr>
-            <tr><td style="padding: 5px 0; font-weight: bold;">Phone:</td><td>${data.phone || 'Not provided'}</td></tr>
-            <tr><td style="padding: 5px 0; font-weight: bold;">Industry:</td><td>${data.industry}</td></tr>
-            <tr><td style="padding: 5px 0; font-weight: bold;">Goal:</td><td>${data.goal}</td></tr>
-            <tr><td style="padding: 5px 0; font-weight: bold;">Budget:</td><td>${data.budgetRange}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Company:</td><td>${esc(data.company)}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Contact:</td><td>${esc(data.firstName)} ${esc(data.lastName)}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Email:</td><td>${esc(data.email)}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Phone:</td><td>${esc(data.phone) || 'Not provided'}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Industry:</td><td>${esc(data.industry)}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Goal:</td><td>${esc(data.goal)}</td></tr>
+            <tr><td style="padding: 5px 0; font-weight: bold;">Budget:</td><td>${esc(data.budgetRange)}</td></tr>
           </table>
         </div>
       `);
@@ -236,14 +247,14 @@ function buildEmailContent(type, data) {
       const bugHtml = baseHtml.replace('{{CONTENT}}', `
         <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b;">
           <h2 style="color: #92400e; margin: 0 0 15px 0;">Bug Report / Suggestion</h2>
-          <p style="margin: 0 0 15px 0; font-size: 15px;">${(data.bugMessage || '').replace(/\n/g, '<br/>')}</p>
+          <p style="margin: 0 0 15px 0; font-size: 15px;">${esc(data.bugMessage).replace(/\n/g, '<br/>')}</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 15px 0;" />
           <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #6b7280;">
-            <tr><td style="padding: 3px 0; font-weight: bold;">Company:</td><td>${data.company || '—'}</td></tr>
-            <tr><td style="padding: 3px 0; font-weight: bold;">Website:</td><td>${data.website || '—'}</td></tr>
-            <tr><td style="padding: 3px 0; font-weight: bold;">AI Score:</td><td>${data.score}/100</td></tr>
-            <tr><td style="padding: 3px 0; font-weight: bold;">Results URL:</td><td><a href="${data.resultsUrl}">${data.resultsUrl}</a></td></tr>
-            <tr><td style="padding: 3px 0; font-weight: bold;">Submitted:</td><td>${data.timestamp}</td></tr>
+            <tr><td style="padding: 3px 0; font-weight: bold;">Company:</td><td>${esc(data.company) || '—'}</td></tr>
+            <tr><td style="padding: 3px 0; font-weight: bold;">Website:</td><td>${esc(data.website) || '—'}</td></tr>
+            <tr><td style="padding: 3px 0; font-weight: bold;">AI Score:</td><td>${esc(String(data.score))}/100</td></tr>
+            <tr><td style="padding: 3px 0; font-weight: bold;">Results URL:</td><td><a href="${esc(data.resultsUrl)}">${esc(data.resultsUrl)}</a></td></tr>
+            <tr><td style="padding: 3px 0; font-weight: bold;">Submitted:</td><td>${esc(data.timestamp)}</td></tr>
           </table>
         </div>
       `);
