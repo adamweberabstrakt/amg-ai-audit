@@ -137,7 +137,6 @@ export async function POST(req) {
       crawl,
       places,
       semrush,
-      gtmetrix:      null, // lazy-loaded separately
       openaiMention: null, // lazy-loaded separately
       claude: claudeData,
       meta: {

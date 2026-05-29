@@ -23,7 +23,7 @@ export default function ResultsClient() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [schedulerOpen, setSchedulerOpen] = useState(false);
   const hasShownAutoPopup = useRef(false);
-  const gtmetrixFetchFired     = useRef(false);  // prevent re-firing on state updates
+  const gtmetrixFetchFired     = useRef(false);  // kept for share-link replay compat
   const openaiMentionFired     = useRef(false);  // same guard for AI mention fetch
   const popupTimer        = useRef(null);
 
@@ -62,31 +62,6 @@ export default function ResultsClient() {
     }
     load();
   }, [router, shareId]);
-
-  // Lazy-load GTMetrix after fast audit data is ready.
-  // Uses a ref guard so the fetch fires exactly once regardless of re-renders or failures.
-  // null  = loading/pending  (spinner shown)
-  // false = done, no data    (spinner stops, panel hidden)
-  // obj   = success          (GTMetrix panel rendered)
-  useEffect(() => {
-    if (!auditData) return;
-    if (gtmetrixFetchFired.current) return;   // already fired — don't retry
-    if (auditData.gtmetrix !== null) return;  // share-link replay already has data
-    const url = auditData?.meta?.website;
-    if (!url) return;
-
-    gtmetrixFetchFired.current = true;
-
-    fetch(`/api/gtmetrix?url=${encodeURIComponent(url)}`)
-      .then(r => r.ok ? r.json() : { gtmetrix: null })
-      .then(({ gtmetrix }) => {
-        // null response from API → set false so spinner stops cleanly
-        setAuditData(prev => prev ? { ...prev, gtmetrix: gtmetrix ?? false } : prev);
-      })
-      .catch(() => {
-        setAuditData(prev => prev ? { ...prev, gtmetrix: false } : prev);
-      });
-  }, [auditData]);
 
   // Lazy-load OpenAI mention check after audit data is ready.
   // null = loading, false = done/no data, obj = result

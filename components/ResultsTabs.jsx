@@ -44,11 +44,11 @@ export default function ResultsTabs({ auditData, onBook }) {
   const [activeTab, setActiveTab] = useState('overview');
   const ActiveComponent = TABS.find((t) => t.id === activeTab)?.component;
 
-  // Recompute health score whenever auditData changes (e.g. after GTMetrix arrives)
+  // Recompute health score whenever auditData changes
   const healthScore = computeHealthScore({
     pageSpeed: auditData?.pageSpeed ?? null,
     crawl:     auditData?.crawl     ?? null,
-    gtmetrix:  auditData?.gtmetrix  ?? null,
+    gtmetrix:  null,
   });
 
   return (

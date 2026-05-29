@@ -4,41 +4,28 @@ import SectionHeader from '@/components/SectionHeader';
 import { computeHealthScore, extractCriticalIssues } from '@/lib/healthScore';
 
 // Tab 2: Website Health
-// Composite health score + critical issues panel + PageSpeed + GTMetrix + crawl signals.
+// Composite health score + critical issues panel + PageSpeed + crawl signals.
 
 export default function WebsiteHealthTab({ auditData, healthScore }) {
   const ps       = auditData?.pageSpeed ?? null;
   const crawl    = auditData?.crawl     ?? null;
-  const gtmetrix = auditData?.gtmetrix  ?? null;
-  const gtLoading = auditData?.gtmetrix === null && !!auditData?.meta?.website;
 
-  if (!ps && !crawl && !gtmetrix) {
+  if (!ps && !crawl) {
     return <EmptyState message="Website performance data could not be retrieved for this domain." />;
   }
 
-  const score       = healthScore ?? computeHealthScore({ pageSpeed: ps, crawl, gtmetrix });
-  const issues      = extractCriticalIssues({ pageSpeed: ps, crawl, gtmetrix });
+  const score       = healthScore ?? computeHealthScore({ pageSpeed: ps, crawl, gtmetrix: null });
+  const issues      = extractCriticalIssues({ pageSpeed: ps, crawl, gtmetrix: null });
   const criticalCount = issues.filter((i) => i.severity === 'critical').length;
   const highCount     = issues.filter((i) => i.severity === 'high').length;
 
   // Top 2 performance recommendations derived from actual data
-  const perfRecs = buildPerfRecs({ pageSpeed: ps, crawl, gtmetrix });
+  const perfRecs = buildPerfRecs({ pageSpeed: ps, crawl });
 
   return (
     <div className="space-y-8">
       {/* Tab identity */}
       <SectionHeader />
-
-      {/* GTMetrix still loading — prominent banner at top */}
-      {gtLoading && (
-        <div className="card border border-brand-orange/40 bg-brand-orange/5 flex items-center gap-4 py-5">
-          <div className="w-5 h-5 rounded-full border-2 border-brand-orange border-t-transparent animate-spin flex-shrink-0" />
-          <div>
-            <p className="font-heading font-semibold text-white text-sm">Running Deep Performance Analysis…</p>
-            <p className="text-xs text-gray-400 mt-0.5">GTMetrix is scanning your site. Scores will update automatically when complete (up to 60s).</p>
-          </div>
-        </div>
-      )}
 
       {/* Composite Health Score + verdict */}
       <HealthScoreHero score={score} criticalCount={criticalCount} highCount={highCount} />
@@ -108,19 +95,6 @@ export default function WebsiteHealthTab({ auditData, healthScore }) {
         </div>
       )}
 
-      {/* GTMetrix — lazy loaded */}
-      {gtLoading ? (
-        <div className="card flex items-center gap-4 py-6">
-          <div className="w-6 h-6 rounded-full border-2 border-brand-orange border-t-transparent animate-spin flex-shrink-0" />
-          <div>
-            <p className="font-heading font-semibold text-white text-sm">Running GTMetrix Analysis…</p>
-            <p className="text-xs text-gray-400 mt-0.5">Performance grades loading — this can take up to 60s</p>
-          </div>
-        </div>
-      ) : gtmetrix && gtmetrix !== false ? (
-        <GTMetrixPanel data={gtmetrix} />
-      ) : null}
-
       {/* Core Web Vitals */}
       {ps?.metrics && (
         <div>
@@ -163,27 +137,21 @@ export default function WebsiteHealthTab({ auditData, healthScore }) {
 
 // ─── Performance recommendation builder ──────────────────────────────────────
 // Derives the top 2 most actionable recommendations from actual audit data.
-function buildPerfRecs({ pageSpeed, crawl, gtmetrix }) {
+function buildPerfRecs({ pageSpeed, crawl }) {
   const recs = [];
 
   const psScore = pageSpeed?.score ?? null;
   const lcp     = pageSpeed?.metrics?.lcp;
   const ttfb    = pageSpeed?.metrics?.ttfb;
   const cls     = pageSpeed?.metrics?.cls;
-  const gtScore = gtmetrix?.performanceScore ?? null;
 
   // Site load speed — biggest impact
   if (psScore !== null && psScore < 70) {
-    const lcpNote = lcp ? ` Your largest content paints at ${lcp}, which exceeds the 2.5s target.` : '';
+    const lcpNote  = lcp  ? ` Your largest content paints at ${lcp}, which exceeds the 2.5s target.` : '';
     const ttfbNote = ttfb ? ` Server response is ${ttfb} — consider upgrading hosting or enabling a CDN.` : '';
     recs.push({
       title: 'Improve Page Load Speed',
       detail: `Your PageSpeed score of ${psScore}/100 is below the threshold AI tools and Google use to rank sites.${lcpNote}${ttfbNote} Compress images, enable caching, and minimize render-blocking scripts.`,
-    });
-  } else if (gtScore !== null && gtScore < 70) {
-    recs.push({
-      title: 'Optimize for Real-World Load Performance',
-      detail: `GTMetrix performance score is ${gtScore}/100. This measures how your site loads for real visitors across geographies. Focus on image optimization, lazy loading, and removing unused JavaScript.`,
     });
   }
 
@@ -270,45 +238,6 @@ function IssueCard({ severity, label, detail }) {
           </span>
         </div>
         <p className="text-xs text-gray-400 leading-relaxed">{detail}</p>
-      </div>
-    </div>
-  );
-}
-
-function GTMetrixPanel({ data }) {
-  const gradeColor = data.grade === 'A' ? 'text-green-400'
-    : data.grade === 'B' ? 'text-green-300'
-    : data.grade === 'C' ? 'text-yellow-400'
-    : data.grade === 'D' ? 'text-red-400'
-    : data.grade === 'F' || data.grade === 'E' ? 'text-red-400'
-    : 'text-gray-400';
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-5">
-        <h3 className="font-heading text-xl font-semibold">GTMetrix Report</h3>
-        {data.reportUrl && (
-          <a href={data.reportUrl} target="_blank" rel="noopener noreferrer"
-            className="text-xs text-brand-orange hover:underline">
-            View full report →
-          </a>
-        )}
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {data.grade && (
-          <div className="card text-center">
-            <div className={`font-heading text-5xl font-bold mb-1 ${gradeColor}`}>{data.grade}</div>
-            <div className="text-xs text-gray-400 uppercase tracking-wide">GTMetrix Grade</div>
-          </div>
-        )}
-        {data.performanceScore != null && <ScoreCard label="Performance" value={data.performanceScore} />}
-        {data.structureScore   != null && <ScoreCard label="Structure"   value={data.structureScore} />}
-        {data.fullyLoadedTime && (
-          <div className="card text-center">
-            <div className="font-heading text-3xl font-bold text-white mb-1">{data.fullyLoadedTime}</div>
-            <div className="text-xs text-gray-400 uppercase tracking-wide">Fully Loaded</div>
-          </div>
-        )}
       </div>
     </div>
   );
