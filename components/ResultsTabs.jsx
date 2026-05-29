@@ -6,6 +6,7 @@ import AIVisibilityTab  from './tabs/AIVisibilityTab';
 import WebsiteHealthTab from './tabs/WebsiteHealthTab';
 import LocalPresenceTab from './tabs/LocalPresenceTab';
 import BrandGapTab      from './tabs/BrandGapTab';
+import { computeHealthScore } from '@/lib/healthScore';
 
 // Compute a count badge for each tab based on audit data
 function getBadge(id, auditData) {
@@ -43,6 +44,13 @@ export default function ResultsTabs({ auditData, onBook }) {
   const [activeTab, setActiveTab] = useState('overview');
   const ActiveComponent = TABS.find((t) => t.id === activeTab)?.component;
 
+  // Recompute health score whenever auditData changes (e.g. after GTMetrix arrives)
+  const healthScore = computeHealthScore({
+    pageSpeed: auditData?.pageSpeed ?? null,
+    crawl:     auditData?.crawl     ?? null,
+    gtmetrix:  auditData?.gtmetrix  ?? null,
+  });
+
   return (
     <div>
       {/* Pill-style tab bar */}
@@ -77,7 +85,7 @@ export default function ResultsTabs({ auditData, onBook }) {
       </div>
 
       {/* Active tab content */}
-      {ActiveComponent && <ActiveComponent auditData={auditData} onBook={onBook} />}
+      {ActiveComponent && <ActiveComponent auditData={auditData} onBook={onBook} healthScore={healthScore} />}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { computeCompetitivePositions } from '@/lib/competitiveScore';
 // Tab 0: Overview
 // Executive dashboard — one glance shows the full picture.
 
-export default function OverviewTab({ auditData, onBook }) {
+export default function OverviewTab({ auditData, onBook, healthScore }) {
   const claude   = auditData?.claude    ?? {};
   const ps       = auditData?.pageSpeed ?? {};
   const places   = auditData?.places    ?? {};
@@ -14,7 +14,8 @@ export default function OverviewTab({ auditData, onBook }) {
   const company  = auditData?.meta?.company ?? 'Your Business';
 
   const aiScore    = claude.aiVisibilityScore             ?? 0;
-  const siteScore  = ps.score                             ?? null;
+  // Use passed healthScore (recalculates when GTMetrix arrives) — fall back to ps.score
+  const siteScore  = healthScore ?? ps.score              ?? null;
   const gbpRating  = places.found ? places.rating         : null;
   const gbpCount   = places.found ? (places.reviewCount ?? 0) : 0;
   const brandScore = claude.scoreBreakdown?.brandSignals  ?? null;

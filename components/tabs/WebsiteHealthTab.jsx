@@ -6,27 +6,42 @@ import { computeHealthScore, extractCriticalIssues } from '@/lib/healthScore';
 // Tab 2: Website Health
 // Composite health score + critical issues panel + PageSpeed + GTMetrix + crawl signals.
 
-export default function WebsiteHealthTab({ auditData }) {
+export default function WebsiteHealthTab({ auditData, healthScore }) {
   const ps       = auditData?.pageSpeed ?? null;
   const crawl    = auditData?.crawl     ?? null;
   const gtmetrix = auditData?.gtmetrix  ?? null;
+  const gtLoading = auditData?.gtmetrix === null && !!auditData?.meta?.website;
 
   if (!ps && !crawl && !gtmetrix) {
     return <EmptyState message="Website performance data could not be retrieved for this domain." />;
   }
 
-  const healthScore = computeHealthScore({ pageSpeed: ps, crawl, gtmetrix });
+  const score       = healthScore ?? computeHealthScore({ pageSpeed: ps, crawl, gtmetrix });
   const issues      = extractCriticalIssues({ pageSpeed: ps, crawl, gtmetrix });
   const criticalCount = issues.filter((i) => i.severity === 'critical').length;
   const highCount     = issues.filter((i) => i.severity === 'high').length;
+
+  // Top 2 performance recommendations derived from actual data
+  const perfRecs = buildPerfRecs({ pageSpeed: ps, crawl, gtmetrix });
 
   return (
     <div className="space-y-8">
       {/* Tab identity */}
       <SectionHeader />
 
+      {/* GTMetrix still loading — prominent banner at top */}
+      {gtLoading && (
+        <div className="card border border-brand-orange/40 bg-brand-orange/5 flex items-center gap-4 py-5">
+          <div className="w-5 h-5 rounded-full border-2 border-brand-orange border-t-transparent animate-spin flex-shrink-0" />
+          <div>
+            <p className="font-heading font-semibold text-white text-sm">Running Deep Performance Analysis…</p>
+            <p className="text-xs text-gray-400 mt-0.5">GTMetrix is scanning your site. Scores will update automatically when complete (up to 60s).</p>
+          </div>
+        </div>
+      )}
+
       {/* Composite Health Score + verdict */}
-      <HealthScoreHero score={healthScore} criticalCount={criticalCount} highCount={highCount} />
+      <HealthScoreHero score={score} criticalCount={criticalCount} highCount={highCount} />
 
       {/* Why This Matters */}
       <div className="card border-l-4 border-brand-orange">
@@ -37,6 +52,26 @@ export default function WebsiteHealthTab({ auditData }) {
           These are often the quickest wins available.
         </p>
       </div>
+
+      {/* Top 2 Performance Recommendations */}
+      {perfRecs.length > 0 && (
+        <div>
+          <h3 className="font-heading text-xl font-semibold mb-4">Top Performance Fixes</h3>
+          <div className="space-y-3">
+            {perfRecs.map((rec, i) => (
+              <div key={i} className="card flex gap-4 items-start">
+                <div className="w-8 h-8 rounded-full bg-brand-orange/10 border border-brand-orange flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="font-heading text-brand-orange font-bold text-sm">{i + 1}</span>
+                </div>
+                <div>
+                  <p className="font-medium text-white text-sm mb-1">{rec.title}</p>
+                  <p className="text-xs text-gray-400 leading-relaxed">{rec.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Critical Issues Panel */}
       {issues.length > 0 ? (
@@ -73,11 +108,8 @@ export default function WebsiteHealthTab({ auditData }) {
         </div>
       )}
 
-      {/* GTMetrix — lazy loaded.
-           null  = still loading (spinner)
-           false = fetch finished, no data available (spinner stops, panel hidden)
-           obj   = data ready (panel renders) */}
-      {auditData?.gtmetrix === null && auditData?.meta?.website ? (
+      {/* GTMetrix — lazy loaded */}
+      {gtLoading ? (
         <div className="card flex items-center gap-4 py-6">
           <div className="w-6 h-6 rounded-full border-2 border-brand-orange border-t-transparent animate-spin flex-shrink-0" />
           <div>
@@ -127,6 +159,60 @@ export default function WebsiteHealthTab({ auditData }) {
       )}
     </div>
   );
+}
+
+// ─── Performance recommendation builder ──────────────────────────────────────
+// Derives the top 2 most actionable recommendations from actual audit data.
+function buildPerfRecs({ pageSpeed, crawl, gtmetrix }) {
+  const recs = [];
+
+  const psScore = pageSpeed?.score ?? null;
+  const lcp     = pageSpeed?.metrics?.lcp;
+  const ttfb    = pageSpeed?.metrics?.ttfb;
+  const cls     = pageSpeed?.metrics?.cls;
+  const gtScore = gtmetrix?.performanceScore ?? null;
+
+  // Site load speed — biggest impact
+  if (psScore !== null && psScore < 70) {
+    const lcpNote = lcp ? ` Your largest content paints at ${lcp}, which exceeds the 2.5s target.` : '';
+    const ttfbNote = ttfb ? ` Server response is ${ttfb} — consider upgrading hosting or enabling a CDN.` : '';
+    recs.push({
+      title: 'Improve Page Load Speed',
+      detail: `Your PageSpeed score of ${psScore}/100 is below the threshold AI tools and Google use to rank sites.${lcpNote}${ttfbNote} Compress images, enable caching, and minimize render-blocking scripts.`,
+    });
+  } else if (gtScore !== null && gtScore < 70) {
+    recs.push({
+      title: 'Optimize for Real-World Load Performance',
+      detail: `GTMetrix performance score is ${gtScore}/100. This measures how your site loads for real visitors across geographies. Focus on image optimization, lazy loading, and removing unused JavaScript.`,
+    });
+  }
+
+  // Layout stability
+  const clsNum = cls ? parseFloat(String(cls).match(/[\d.]+/)?.[0] ?? '0') : 0;
+  if (clsNum > 0.1) {
+    recs.push({
+      title: 'Fix Layout Shift (CLS)',
+      detail: `Cumulative Layout Shift of ${cls} means your page visually jumps as it loads. This frustrates visitors and signals poor quality to AI crawlers. Set explicit width/height on images and avoid inserting content above the fold after load.`,
+    });
+  }
+
+  // Schema missing — high AI impact
+  if (crawl && !crawl.hasSchema && recs.length < 2) {
+    recs.push({
+      title: 'Add Schema Markup',
+      detail: 'Your site has no structured data (schema.org markup). This is one of the strongest signals for AI discoverability. Add LocalBusiness, Organization, and FAQ schema to your key pages to help AI tools understand and cite your business.',
+    });
+  }
+
+  // Meta description missing
+  if (crawl && !crawl.hasMetaDesc && recs.length < 2) {
+    recs.push({
+      title: 'Write Meta Descriptions',
+      detail: 'Missing meta descriptions reduce click-through rates and give AI tools less context when summarizing your pages. Add a unique, keyword-rich description (150–160 characters) to every key page.',
+    });
+  }
+
+  return recs.slice(0, 2);
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────

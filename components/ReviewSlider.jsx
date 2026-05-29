@@ -4,33 +4,33 @@ import { useState, useEffect, useCallback } from 'react';
 
 const REVIEWS = [
   {
-    quote: "With Abstrakt, I got more than just a web development team. They delivered a true comprehensive digital strategy. Within one week of launch, I got a new lead from the site.",
-    author: "Law Firm Owner",
+    quote: "We have worked with Abstrakt on outbound prospecting, the development of our new website, SEO strategy, and marketing content creation. Their employees have been friendly, responsive, professional, and committed to understanding our business and our goals.",
+    author: "Michael Whitman, Print Image Solutions",
     source: "Google Review",
     stars: 5,
   },
   {
-    quote: "Redesigned a website that grabbed the attention of key leads, including a local engineering firm. Landed a $40K project and expanded the partnership into new markets.",
-    author: "VP of Sales, Roofcorp of America",
-    source: "Clutch Review",
+    quote: "We've had our website for 25 years but only started working with Abstrakt late last year. I knew immediately I made the right choice. The team was thorough and showed me every aspect of the new website before going live. The best part is the continual monthly meetings for website and SEO improvement.",
+    author: "Verified Client",
+    source: "Google Review",
+    stars: 5,
+  },
+  {
+    quote: "With Abstrakt, I got more than just a web development team. They delivered a true comprehensive digital strategy. I hired Abstrakt for an update to the company website, with a focus on improving our Google search rankings. Within one week of launch, I got a new lead from the site.",
+    author: "Law Firm Owner",
+    source: "Trustpilot Review",
+    stars: 5,
+  },
+  {
+    quote: "It has been great working with the inbound team on their SEO product. We have already seen improvements and leads coming in from the streamlining of keywords and website optimization. We have appreciated all of their professionalism and support.",
+    author: "Verified Client",
+    source: "Google Review",
     stars: 5,
   },
   {
     quote: "They've created the best website we've had yet and the assistance in reading the results of the website is great! We're really happy with the work they've done for us.",
     author: "Business Owner",
     source: "Google Review",
-    stars: 5,
-  },
-  {
-    quote: "We had an excellent experience with Abstrakt in redesigning and launching our new firm website with SEO. The team ensured seamless customer experience through timely deliveries.",
-    author: "Professional Services Client",
-    source: "Trustpilot Review",
-    stars: 5,
-  },
-  {
-    quote: "They have the ability to deliver quality leads, superb marketing collateral, and a robust SEO program. Projects were organized and updated regularly with milestone reviews.",
-    author: "Commercial Roofing Contractor",
-    source: "Clutch Review",
     stars: 5,
   },
 ];

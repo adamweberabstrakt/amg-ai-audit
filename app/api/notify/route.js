@@ -138,7 +138,11 @@ function buildTeamsMessage(type, data) {
 async function sendBrevoEmail(type, data) {
   const apiKey = process.env.BREVO_SMTP_KEY;
   const fromEmail = process.env.BREVO_FROM_EMAIL || 'notifications@abstraktmg.com';
-  const toEmail = process.env.BREVO_TO_EMAIL || 'team@abstraktmg.com';
+
+  // Bug reports always go directly to adam.weber@abstraktmg.com
+  const toEmail = type === 'bug_report'
+    ? 'adam.weber@abstraktmg.com'
+    : (process.env.BREVO_TO_EMAIL || 'team@abstraktmg.com');
 
   const emailContent = buildEmailContent(type, data);
   
@@ -226,6 +230,27 @@ function buildEmailContent(type, data) {
         subject: `New Lead: ${data.company} - ${data.firstName} ${data.lastName}`,
         html: formHtml,
         text: `New Lead Captured\n\nCompany: ${data.company}\nContact: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: ${data.phone || 'Not provided'}`
+      };
+
+    case 'bug_report':
+      const bugHtml = baseHtml.replace('{{CONTENT}}', `
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+          <h2 style="color: #92400e; margin: 0 0 15px 0;">Bug Report / Suggestion</h2>
+          <p style="margin: 0 0 15px 0; font-size: 15px;">${(data.bugMessage || '').replace(/\n/g, '<br/>')}</p>
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 15px 0;" />
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #6b7280;">
+            <tr><td style="padding: 3px 0; font-weight: bold;">Company:</td><td>${data.company || '—'}</td></tr>
+            <tr><td style="padding: 3px 0; font-weight: bold;">Website:</td><td>${data.website || '—'}</td></tr>
+            <tr><td style="padding: 3px 0; font-weight: bold;">AI Score:</td><td>${data.score}/100</td></tr>
+            <tr><td style="padding: 3px 0; font-weight: bold;">Results URL:</td><td><a href="${data.resultsUrl}">${data.resultsUrl}</a></td></tr>
+            <tr><td style="padding: 3px 0; font-weight: bold;">Submitted:</td><td>${data.timestamp}</td></tr>
+          </table>
+        </div>
+      `);
+      return {
+        subject: 'AI Search Audit Bug Report',
+        html: bugHtml,
+        text: `Bug Report\n\n${data.bugMessage}\n\nCompany: ${data.company}\nWebsite: ${data.website}\nScore: ${data.score}/100\nURL: ${data.resultsUrl}`,
       };
 
     default:

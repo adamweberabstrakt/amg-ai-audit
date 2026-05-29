@@ -115,3 +115,13 @@ html.light .text-gray-300 { color: #374151; }
 html.light .text-gray-400 { color: #4b5563; }
 
 html.light footer { background-color: #f0f0f0; border-color: #e5e7eb; }
+
+/* ── Light mode: preserve white text on orange/dark buttons ── */
+html.light .btn-primary { color: #ffffff !important; }
+html.light .bg-brand-orange { color: #ffffff; }
+
+/* ── Light mode: PDF/report section gets light background ── */
+html.light .report-actions-section {
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+}
