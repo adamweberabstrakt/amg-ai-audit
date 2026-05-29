@@ -1,28 +1,22 @@
 // app/api/share/route.js
 // Stores audit results in Vercel Blob.
-// BLOB_READ_WRITE_TOKEN must be a READ-WRITE token (starts with vercel_blob_rw_).
-// Create via: Vercel Dashboard > project > Storage > Blob > Create Store,
-// then ensure the store is CONNECTED to this project.
+// Requires BLOB_READ_WRITE_TOKEN — create a Blob store in Vercel dashboard > Storage,
+// then ensure the store is connected to this project.
 
 import { NextResponse } from 'next/server';
 import { put, head }    from '@vercel/blob';
 import { randomUUID }   from 'crypto';
 
 function blobConfigured() {
-  const token = process.env.BLOB_READ_WRITE_TOKEN ?? '';
-  // Must be a read-write token — read-only tokens start with vercel_blob_ro_
-  return token.startsWith('vercel_blob_rw_');
+  // Accept any non-empty token — don't enforce format, Vercel handles auth
+  return !!(process.env.BLOB_READ_WRITE_TOKEN ?? '').trim();
 }
 
 // POST /api/share  — save audit data, return { id }
 export async function POST(req) {
   if (!blobConfigured()) {
-    const token = process.env.BLOB_READ_WRITE_TOKEN ?? '';
-    const hint = !token ? 'token missing'
-      : token.startsWith('vercel_blob_ro_') ? 'token is read-only — regenerate as read-write'
-      : 'token present but wrong format — check Vercel Storage > Blob';
-    console.error(`[share] Blob not usable: ${hint}`);
-    return NextResponse.json({ error: 'Share storage not configured', hint }, { status: 503 });
+    console.error('[share] BLOB_READ_WRITE_TOKEN not set');
+    return NextResponse.json({ error: 'Share storage not configured' }, { status: 503 });
   }
 
   try {
@@ -37,7 +31,6 @@ export async function POST(req) {
 
     return NextResponse.json({ id });
   } catch (err) {
-    // Log full error so it's visible in Vercel function logs
     console.error('[share] PUT failed:', err?.message ?? err);
     return NextResponse.json({ error: 'Failed to save results' }, { status: 500 });
   }
